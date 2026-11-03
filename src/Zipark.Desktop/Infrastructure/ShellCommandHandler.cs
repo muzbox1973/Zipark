@@ -171,18 +171,18 @@ public sealed class ShellCommandHandler
             var (ok, listPw) = await PasswordFor(archive);
             pw = listPw;
             if (!ok) return;
-            var dest = ExtractViewModel.DestinationFor(archive, null, toFolder);
             var limits = s.Settings.ToBombLimits();
             var job = s.Jobs.Enqueue(new JobRequest
             {
                 Kind = JobKind.Extract,
                 Sources = [archive],
-                Destination = dest,
+                Destination = Path.GetDirectoryName(Path.GetFullPath(archive))!,
+                IntoArchiveFolder = toFolder,
                 Conflict = s.Settings.Conflict,
                 BombMaxTotalBytes = limits.MaxTotalBytes,
                 BombSuspiciousRatio = limits.SuspiciousRatio,
             }, pw);
-            JobsViewModel.ReportWhenDone(job, dest, s.Settings.OpenFolderAfterExtract);
+            JobsViewModel.ReportWhenDone(job, null, s.Settings.OpenFolderAfterExtract); // job reports the real folder
         }
         finally
         {

@@ -35,6 +35,11 @@ public sealed class JobRequest
     // extract
     public List<string>? Selection { get; set; }
     public string? StripPrefix { get; set; }
+    /// <summary>
+    /// "Extract to a new folder": <see cref="Destination"/> is the parent folder and the job picks the archive's
+    /// folder inside it (see <see cref="ExtractTarget.ForNewFolder"/>).
+    /// </summary>
+    public bool IntoArchiveFolder { get; set; }
     public bool FlattenPaths { get; set; }
     public bool AllowLimitOverride { get; set; }
     public long BombMaxTotalBytes { get; set; } = new BombLimits().MaxTotalBytes;

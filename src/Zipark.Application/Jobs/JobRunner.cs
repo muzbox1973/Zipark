@@ -72,8 +72,30 @@ public sealed class JobRunner
                 throw new ZiparkException(ErrorCode.MissingVolume, "Missing volume: " + string.Join(", ", set.Missing.Select(Path.GetFileName)));
             r.Sources[0] = set.EnginePath;
         }
-        var res = await _engine.ExtractAsync(r.ToExtractOptions(pw, _conflictPrompt), progress, ct).ConfigureAwait(false);
-        var result = new JobResult { Success = true, Outputs = [res.Destination], Files = res.FilesWritten };
+        var options = r.ToExtractOptions(pw, _conflictPrompt);
+        var resultFolder = options.Destination;
+        if (r.IntoArchiveFolder)
+        {
+            var listing = await _engine.ListAsync(options.ArchivePath, pw, ct).ConfigureAwait(false);
+            var (dest, shown) = ExtractTarget.ForNewFolder(listing, r.Sources[0], options.Destination);
+            options = new ExtractOptions
+            {
+                ArchivePath = options.ArchivePath,
+                Destination = dest,
+                Password = options.Password,
+                Selection = options.Selection,
+                StripPrefix = options.StripPrefix,
+                FlattenPaths = options.FlattenPaths,
+                AllowLimitOverride = options.AllowLimitOverride,
+                Limits = options.Limits,
+                Conflict = options.Conflict,
+                ConflictPrompt = options.ConflictPrompt,
+                Listing = listing,
+            };
+            resultFolder = shown;
+        }
+        var res = await _engine.ExtractAsync(options, progress, ct).ConfigureAwait(false);
+        var result = new JobResult { Success = true, Outputs = [resultFolder], Files = res.FilesWritten };
         if (res.Blocked.Count > 0) result.Warnings.Add($"blocked:{res.Blocked.Count}");
         if (res.Renamed > 0) result.Warnings.Add($"renamed:{res.Renamed}");
         if (res.Skipped > 0) result.Warnings.Add($"skipped:{res.Skipped}");

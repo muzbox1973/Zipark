@@ -102,19 +102,6 @@ public sealed class ExtractViewModel : ObservableObject, INavigable
         }
     }
 
-    /// <summary>Destination for one archive: its own folder or the chosen one, optionally in a new sub-folder named after it.</summary>
-    public static string DestinationFor(string archive, string? custom, bool subfolder)
-    {
-        var baseDir = custom ?? Path.GetDirectoryName(Path.GetFullPath(archive))!;
-        if (!subfolder) return baseDir;
-        var name = Path.GetFileName(archive);
-        foreach (var suffix in new[] { ".001", ".tar.gz", ".tar.xz", ".tar.bz2", ".7z", ".zip", ".rar", ".tar", ".gz", ".xz", ".bz2", ".tgz", ".txz", ".iso", ".cab", ".wim", ".zst" })
-            if (name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)) name = name[..^suffix.Length];
-        var partIdx = name.LastIndexOf(".part", StringComparison.OrdinalIgnoreCase);
-        if (partIdx > 0) name = name[..partIdx];
-        return ConflictResolver.GetUniquePath(Path.Combine(baseDir, PathSafety.SanitizeFileName(name)));
-    }
-
     private void Start()
     {
         var s = AppServices.Current;
@@ -122,17 +109,18 @@ public sealed class ExtractViewModel : ObservableObject, INavigable
         var limits = s.Settings.ToBombLimits();
         foreach (var row in Archives.ToList())
         {
-            var dest = DestinationFor(row.Path, _toSameFolder ? null : _destination, _createSubfolder);
+            // With "new folder" the job chooses the folder itself (reusing it if it exists, never "name (2)").
             var job = s.Jobs.Enqueue(new JobRequest
             {
                 Kind = JobKind.Extract,
                 Sources = [row.Path],
-                Destination = dest,
+                Destination = _toSameFolder ? Path.GetDirectoryName(Path.GetFullPath(row.Path))! : _destination,
+                IntoArchiveFolder = _createSubfolder,
                 Conflict = _conflict,
                 BombMaxTotalBytes = limits.MaxTotalBytes,
                 BombSuspiciousRatio = limits.SuspiciousRatio,
             }, pw);
-            JobsViewModel.ReportWhenDone(job, dest, _openAfter);
+            JobsViewModel.ReportWhenDone(job, null, _openAfter);
         }
         s.Notify.Info(Loc.F("s.notice.extractBatch", Archives.Count));
         PasswordInput?.Clear();
