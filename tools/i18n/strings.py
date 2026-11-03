@@ -383,6 +383,7 @@ S = {
     "settings.about": ("정보", "About"),
     "settings.aboutText": ("Zipark — 영구 무료 오픈소스 압축 프로그램 (MIT 라이선스). 7-Zip(LGPL)과 WinFsp(GPLv3 + FLOSS 예외)를 사용합니다. 제품명은 상표 조사가 끝날 때까지 가칭입니다.",
                            "Zipark — free, open-source archiver (MIT License). Uses 7-Zip (LGPL) and WinFsp (GPLv3 + FLOSS exception). The product name is provisional pending a trademark review."),
+    "settings.tabSystem": ("탐색기·엔진", "Explorer & engine"),
     "settings.developer": ("개발자", "Developer"),
     "settings.youtube": ("유튜브", "YouTube"),
     "settings.website": ("공식 사이트", "Website"),

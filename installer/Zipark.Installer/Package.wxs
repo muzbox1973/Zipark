@@ -1,5 +1,5 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-  <Package Name="Zipark" Manufacturer="GPT PARK" Version="1.0.0.0"
+  <Package Name="Zipark" Manufacturer="GPT PARK" Version="$(ProductVersion).0"
            UpgradeCode="DE28E8D9-B6CC-4053-8104-ABEEDD8F4532" Scope="perMachine" Language="1033">
     <SummaryInformation Description="Zipark - free open-source archiver" />
     <MajorUpgrade DowngradeErrorMessage="A newer version of Zipark is already installed." />

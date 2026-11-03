@@ -48,11 +48,14 @@ public partial class App : System.Windows.Application
             if (Arg("--lang") is { } lang) snapSettings.Language = lang;
             if (Arg("--theme") is { } theme && Enum.TryParse<ThemeMode>(theme, true, out var tm)) snapSettings.Theme = tm;
             snapSettings.SimpleMode = !e.Args.Contains("--expert");
+            // Worst case for the home page: a full recent list with long paths.
+            snapSettings.RecentArchives = Enumerable.Range(1, 15)
+                .Select(i => $@"C:\Users\someone\Documents\프로젝트 자료 모음\2026년 분기별 보고서\archive-{i:D2}-very-long-file-name.7z").ToList();
             AppServices.Initialize(new SettingsStore(Path.Combine(Path.GetTempPath(), "Zipark-snap-settings.json")), snapSettings);
             ThemeManager.Apply(snapSettings.Theme);
             Loc.Apply(snapSettings.Language);
             UiState.Instance.Expert = !snapSettings.SimpleMode;
-            var snapWindow = new MainWindow(new MainViewModel()) { Width = 1280, Height = 860 };
+            var snapWindow = new MainWindow(new MainViewModel());
             MainWindow = snapWindow;
             snapWindow.Show();
             snapWindow.Dispatcher.InvokeAsync(async () =>

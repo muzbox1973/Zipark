@@ -20,6 +20,21 @@ footer{margin-top:48px;color:var(--muted);font-size:13px;border-top:1px solid va
 <p>이 문서는 <a href="https://keepachangelog.com/ko/1.1.0/">Keep a Changelog</a> 형식을 따르고, 버전 번호는 <a href="https://semver.org/lang/ko/">유의적 버전(SemVer)</a>을 따릅니다.</p>
 <p>개발자: <strong>GPT PARK</strong> · 유튜브 <a href="https://www.youtube.com/@AIFACT-GPTPARK">https://www.youtube.com/@AIFACT-GPTPARK</a> · 공식 사이트 <a href="https://gptparkai.com/">https://gptparkai.com/</a></p>
 <hr>
+<h2>[1.0.1] — 2026-11-03</h2>
+<h3>변경</h3>
+<ul>
+<li>창 크기를 <strong>고정</strong>했습니다. 크기 조절은 할 수 없고 최소화만 됩니다. 모니터 작업 영역이 창보다 작으면 화면 전체를 비율대로 축소해 표시합니다.</li>
+<li>모든 화면에서 <strong>페이지 스크롤바를 없앴습니다.</strong></li>
+<ul>
+<li>홈: 드롭 영역과 카드를 정리하고, 최근 파일은 최대 6개까지 표시합니다.</li>
+<li>새 압축 만들기 · 압축 해제: 왼쪽에 항목 목록, 오른쪽에 옵션을 두는 2단 배치로 바꿨습니다. 분할과 암호 옵션을 모두 펼쳐도 한 화면에 들어갑니다.</li>
+<li>환경설정: 화면 · 압축 기본값 · 안전 장치 · 가상 드라이브 · 탐색기·엔진 · 정보 탭으로 나눴습니다.</li>
+<li>분할 압축 · 암호 설정: 한 화면에 맞게 다시 배치했습니다.</li>
+<li>파일 목록 같은 데이터 목록은 항목이 많을 때만 목록 안에서 스크롤됩니다.</li>
+</ul>
+<li>버전 번호를 한 곳(<code>Directory.Build.props</code>)에서 관리합니다. 앱, MSI, 포터블 zip의 버전이 자동으로 맞춰집니다.</li>
+</ul>
+<hr>
 <h2>[1.0.0] — 2026-11-03 · 첫 정식 버전</h2>
 <h3>추가</h3>
 <ul>

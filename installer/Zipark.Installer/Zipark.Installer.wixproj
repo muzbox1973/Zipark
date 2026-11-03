@@ -4,11 +4,11 @@
     self-contained app into artifacts/publish (and the 7-Zip engine into artifacts/publish/engine).
   -->
   <PropertyGroup>
-    <OutputName>Zipark-1.0.0-x64</OutputName>
+    <OutputName>Zipark-$(Version)-x64</OutputName>
     <Platform>x64</Platform>
     <InstallerPlatform>x64</InstallerPlatform>
     <PublishDir Condition="'$(PublishDir)' == ''">$(MSBuildThisFileDirectory)..\..\artifacts\publish\</PublishDir>
-    <DefineConstants>PublishDir=$(PublishDir)</DefineConstants>
+    <DefineConstants>PublishDir=$(PublishDir);ProductVersion=$(Version)</DefineConstants>
     <SuppressValidation>false</SuppressValidation>
   </PropertyGroup>
   <ItemGroup>

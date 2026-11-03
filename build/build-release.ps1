@@ -1,8 +1,8 @@
 <#
   Zipark release build.
     pwsh build/build-release.ps1 [-SevenZipDir "C:\Program Files\7-Zip"] [-SkipTests]
-  Produces: artifacts/publish (self-contained app), artifacts/Zipark-1.0.0-x64-portable.zip,
-            artifacts/Zipark-1.0.0-x64.msi, artifacts/sbom.json
+  Produces: artifacts/publish (self-contained app), artifacts/Zipark-<version>-x64-portable.zip,
+            artifacts/Zipark-<version>-x64.msi, artifacts/sbom.json
   The 7-Zip engine (7z.exe/7z.dll, LGPL-2.1-or-later + unRAR restriction) is copied unmodified together with
   its License.txt; see THIRD_PARTY_NOTICES.md for the redistribution obligations.
 #>
@@ -49,7 +49,8 @@ Get-ChildItem $pub -Filter *.pdb -Recurse | Remove-Item
 # SBOM-style inventory of NuGet dependencies (license check runs in CI)
 & $dotnet list "$root\Zipark.sln" package --include-transitive --format json | Out-File -Encoding utf8 "$art\sbom.json"
 
-Compress-Archive -Path "$pub\*" -DestinationPath "$art\Zipark-1.0.0-x64-portable.zip" -Force
+$version = ([xml](Get-Content (Join-Path $root 'Directory.Build.props'))).Project.PropertyGroup.Version
+Compress-Archive -Path "$pub\*" -DestinationPath "$art\Zipark-$version-x64-portable.zip" -Force
 & $dotnet build "$root\installer\Zipark.Installer\Zipark.Installer.wixproj" -c Release -p:PublishDir="$pub\" -o $art
 if ($LASTEXITCODE -ne 0) { throw 'MSI build failed' }
 Get-ChildItem $art -File | Select-Object Name, Length

@@ -2,77 +2,94 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:v="clr-namespace:Zipark.Desktop.Views">
-  <ScrollViewer VerticalScrollBarVisibility="Auto">
-    <StackPanel Margin="32,28,32,90" MaxWidth="1000">
-      <TextBlock Text="{DynamicResource s.extract.title}" Style="{StaticResource Text.Title}"/>
-      <TextBlock Text="{DynamicResource s.extract.subtitle}" Style="{StaticResource Text.Subtitle}" Margin="0,0,0,20"/>
 
-      <Border Style="{StaticResource Card}" Margin="0,0,0,14">
-        <StackPanel>
-          <DockPanel Margin="0,0,0,8">
-            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-              <Button Content="{DynamicResource s.extract.add}" Command="{Binding AddCommand}" Margin="0,0,6,0"/>
-              <Button Content="{DynamicResource s.common.remove}" Command="{Binding RemoveCommand}" Margin="0,0,6,0"/>
-              <Button Content="{DynamicResource s.common.clear}" Command="{Binding ClearCommand}" Style="{StaticResource Button.Subtle}"/>
-            </StackPanel>
-            <TextBlock Text="{DynamicResource s.extract.archives}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" Margin="0"/>
-          </DockPanel>
-          <ListBox ItemsSource="{Binding Archives}" SelectedItem="{Binding Selected}" MinHeight="90" MaxHeight="220"
-                   Background="{DynamicResource Brush.Input}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1">
+  <!-- Fixed two-column layout: no page scrolling. -->
+  <Grid Margin="28,20,28,16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <StackPanel Margin="0,0,0,12">
+      <TextBlock Text="{DynamicResource s.extract.title}" Style="{StaticResource Text.Title}"/>
+      <TextBlock Text="{DynamicResource s.extract.subtitle}" Style="{StaticResource Text.Subtitle}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                 ToolTip="{DynamicResource s.extract.subtitle}"/>
+    </StackPanel>
+
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="5*"/>
+        <ColumnDefinition Width="14"/>
+        <ColumnDefinition Width="6*"/>
+      </Grid.ColumnDefinitions>
+
+      <!-- Left: archives (batch) -->
+      <Border Style="{StaticResource Card}" Padding="14,12">
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Top" Text="{DynamicResource s.extract.archives}" Style="{StaticResource Text.Section}" Margin="0,0,0,8"/>
+          <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <Button Content="{DynamicResource s.extract.add}" Command="{Binding AddCommand}" Margin="0,0,6,0" Padding="12,5"/>
+            <Button Content="{DynamicResource s.common.remove}" Command="{Binding RemoveCommand}" Margin="0,0,6,0" Padding="12,5"/>
+            <Button Content="{DynamicResource s.common.clear}" Command="{Binding ClearCommand}" Style="{StaticResource Button.Subtle}" Padding="10,5"/>
+          </WrapPanel>
+          <TextBlock DockPanel.Dock="Bottom" Text="{DynamicResource s.extract.batchHint}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="0,6,0,0"/>
+          <ListBox ItemsSource="{Binding Archives}" SelectedItem="{Binding Selected}"
+                   Background="{DynamicResource Brush.Input}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemTemplate>
               <DataTemplate>
-                <StackPanel Margin="2">
+                <StackPanel Margin="2" ToolTip="{Binding Path}">
                   <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE7B8;" FontFamily="{StaticResource Font.Icons}" Foreground="{DynamicResource Brush.Accent}" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding Path}" Margin="8,0,0,0" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding Name}" Margin="8,0,0,0" TextTrimming="CharacterEllipsis" MaxWidth="360"/>
                   </StackPanel>
-                  <TextBlock Text="{Binding Status}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="24,0,0,0"/>
+                  <TextBlock Text="{Binding Status}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="24,0,0,0" TextTrimming="CharacterEllipsis" MaxWidth="340"/>
                 </StackPanel>
               </DataTemplate>
             </ListBox.ItemTemplate>
           </ListBox>
-          <TextBlock Text="{DynamicResource s.extract.batchHint}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="0,6,0,0"/>
-        </StackPanel>
+        </DockPanel>
       </Border>
 
-      <Border Style="{StaticResource Card}" Margin="0,0,0,14">
-        <StackPanel>
-          <TextBlock Text="{DynamicResource s.extract.destination}" Style="{StaticResource Text.Section}"/>
-          <RadioButton Content="{DynamicResource s.extract.sameFolder}" IsChecked="{Binding ToSameFolder}" GroupName="dest"/>
-          <DockPanel Margin="0,4,0,0">
-            <RadioButton DockPanel.Dock="Left" Content="{DynamicResource s.extract.customFolder}" IsChecked="{Binding ToCustomFolder}" GroupName="dest"/>
-            <Button DockPanel.Dock="Right" Content="{DynamicResource s.common.browse}" Command="{Binding BrowseCommand}" Margin="8,0,0,0"/>
-            <TextBox Text="{Binding Destination, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ToCustomFolder}"/>
-          </DockPanel>
-          <CheckBox Content="{DynamicResource s.extract.subfolder}" IsChecked="{Binding CreateSubfolder}" Margin="0,10,0,0"/>
-          <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-            <TextBlock Text="{DynamicResource s.extract.conflict}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-            <ComboBox Width="260" ItemsSource="{Binding ConflictChoices}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Conflict}"/>
+      <!-- Right: where and how -->
+      <StackPanel Grid.Column="2">
+        <Border Style="{StaticResource Card}" Padding="14,12" Margin="0,0,0,12">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource s.extract.destination}" Style="{StaticResource Text.Section}" Margin="0,0,0,6"/>
+            <RadioButton Content="{DynamicResource s.extract.sameFolder}" IsChecked="{Binding ToSameFolder}" GroupName="dest" Margin="0,2"/>
+            <RadioButton Content="{DynamicResource s.extract.customFolder}" IsChecked="{Binding ToCustomFolder}" GroupName="dest" Margin="0,2"/>
+            <DockPanel Margin="22,4,0,0">
+              <Button DockPanel.Dock="Right" Content="{DynamicResource s.common.browse}" Command="{Binding BrowseCommand}" Margin="8,0,0,0"/>
+              <TextBox Text="{Binding Destination, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ToCustomFolder}" ToolTip="{Binding Destination}"/>
+            </DockPanel>
+            <CheckBox Content="{DynamicResource s.extract.subfolder}" IsChecked="{Binding CreateSubfolder}" Margin="0,8,0,2"/>
+            <DockPanel Margin="0,6,0,0">
+              <TextBlock Text="{DynamicResource s.extract.conflict}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+              <ComboBox ItemsSource="{Binding ConflictChoices}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Conflict}"/>
+            </DockPanel>
+            <CheckBox Content="{DynamicResource s.extract.openAfter}" IsChecked="{Binding OpenAfter}" Margin="0,8,0,0"/>
           </StackPanel>
-          <CheckBox Content="{DynamicResource s.extract.openAfter}" IsChecked="{Binding OpenAfter}" Margin="0,10,0,0"/>
-        </StackPanel>
-      </Border>
-
-      <Border Style="{StaticResource Card}" Margin="0,0,0,14">
-        <StackPanel>
-          <TextBlock Text="{DynamicResource s.extract.password}" Style="{StaticResource Text.Section}"/>
-          <v:SecretInput x:Name="Pw" Width="300" HorizontalAlignment="Left" Label="{DynamicResource s.pw.password}"/>
-          <TextBlock Text="{DynamicResource s.extract.passwordHint}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="0,6,0,0"/>
-        </StackPanel>
-      </Border>
-
-      <Border Style="{StaticResource Card}" Margin="0,0,0,14" Background="{DynamicResource Brush.AccentSoft}" BorderThickness="0">
-        <StackPanel Orientation="Horizontal">
-          <TextBlock Text="&#xE83D;" FontFamily="{StaticResource Font.Icons}" Foreground="{DynamicResource Brush.Accent}" VerticalAlignment="Top" Margin="0,2,10,0"/>
-          <TextBlock Text="{DynamicResource s.extract.safety}" TextWrapping="Wrap" MaxWidth="820"/>
-        </StackPanel>
-      </Border>
-
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-        <Button Style="{StaticResource Button.Accent}" Command="{Binding StartCommand}" Padding="22,8">
-          <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE896;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="{DynamicResource s.extract.start}" Margin="8,0,0,0"/></StackPanel>
-        </Button>
+        </Border>
+        <Border Style="{StaticResource Card}" Padding="14,12" Margin="0,0,0,12">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource s.extract.password}" Style="{StaticResource Text.Section}" Margin="0,0,0,6"/>
+            <v:SecretInput x:Name="Pw" Width="280" HorizontalAlignment="Left" Label="{DynamicResource s.pw.password}"/>
+            <TextBlock Text="{DynamicResource s.extract.passwordHint}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="0,6,0,0"/>
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}" Padding="14,10" Background="{DynamicResource Brush.AccentSoft}" BorderThickness="0">
+          <DockPanel>
+            <TextBlock Text="&#xE83D;" FontFamily="{StaticResource Font.Icons}" Foreground="{DynamicResource Brush.Accent}" VerticalAlignment="Top" Margin="0,2,10,0"/>
+            <TextBlock Text="{DynamicResource s.extract.safety}" TextWrapping="Wrap" FontSize="12"/>
+          </DockPanel>
+        </Border>
       </StackPanel>
-    </StackPanel>
-  </ScrollViewer>
+    </Grid>
+
+    <DockPanel Grid.Row="2" Margin="0,12,0,0" LastChildFill="False">
+      <Button DockPanel.Dock="Right" Style="{StaticResource Button.Accent}" Command="{Binding StartCommand}" Padding="22,8">
+        <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE896;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="{DynamicResource s.extract.start}" Margin="8,0,0,0"/></StackPanel>
+      </Button>
+    </DockPanel>
+  </Grid>
 </UserControl>

@@ -7,147 +7,157 @@
     <infra:BoolToVisibilityConverter x:Key="NotVis" Invert="True"/>
     <Style x:Key="TileIcon" TargetType="TextBlock">
       <Setter Property="FontFamily" Value="{StaticResource Font.Icons}"/>
-      <Setter Property="FontSize" Value="24"/>
+      <Setter Property="FontSize" Value="22"/>
       <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
-      <Setter Property="Margin" Value="0,0,0,10"/>
+      <Setter Property="Margin" Value="0,0,0,8"/>
     </Style>
   </UserControl.Resources>
-  <ScrollViewer VerticalScrollBarVisibility="Auto">
-    <StackPanel Margin="32,28,32,90" MaxWidth="1100">
+
+  <!-- Fixed layout: no page scrolling. -->
+  <Grid Margin="28,20,28,16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <StackPanel Margin="0,0,0,12">
       <TextBlock Text="{DynamicResource s.home.title}" Style="{StaticResource Text.Title}"/>
-      <TextBlock Text="{DynamicResource s.home.subtitle}" Style="{StaticResource Text.Subtitle}" Margin="0,0,0,20"/>
-
-      <!-- Engine missing banner -->
-      <Border Style="{StaticResource Card}" BorderBrush="{DynamicResource Brush.Danger}" Margin="0,0,0,16" Visibility="{Binding EngineOk, Converter={StaticResource NotVis}}">
-        <StackPanel>
-          <TextBlock Text="{DynamicResource s.home.engineMissingTitle}" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Danger}"/>
-          <TextBlock Text="{Binding EngineText}" Style="{StaticResource Text.Muted}" Margin="0,4,0,0"/>
-        </StackPanel>
-      </Border>
-
-      <!-- Drop zone -->
-      <Border Background="{DynamicResource Brush.DropZone}" CornerRadius="14" Padding="24" Margin="0,0,0,20" MinHeight="150">
-        <Border.BorderBrush>
-          <DrawingBrush Viewport="0,0,12,12" ViewportUnits="Absolute" TileMode="Tile">
-            <DrawingBrush.Drawing>
-              <GeometryDrawing Brush="{DynamicResource Brush.Accent}">
-                <GeometryDrawing.Geometry>
-                  <GeometryGroup>
-                    <RectangleGeometry Rect="0,0,6,6"/>
-                    <RectangleGeometry Rect="6,6,6,6"/>
-                  </GeometryGroup>
-                </GeometryDrawing.Geometry>
-              </GeometryDrawing>
-            </DrawingBrush.Drawing>
-          </DrawingBrush>
-        </Border.BorderBrush>
-        <Border.BorderThickness>1.5</Border.BorderThickness>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-          <TextBlock Text="&#xE896;" FontFamily="{StaticResource Font.Icons}" FontSize="34" Foreground="{DynamicResource Brush.Accent}" HorizontalAlignment="Center"/>
-          <TextBlock Text="{DynamicResource s.home.drop}" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,10,0,4"/>
-          <TextBlock Text="{DynamicResource s.home.dropHint}" Style="{StaticResource Text.Muted}" HorizontalAlignment="Center" TextAlignment="Center"/>
-        </StackPanel>
-      </Border>
-
-      <!-- Quick actions -->
-      <UniformGrid Columns="5" Margin="-6,0,-6,20">
-        <Button Style="{StaticResource Button.Tile}" Margin="6" Command="{Binding NewArchiveCommand}">
-          <StackPanel>
-            <TextBlock Text="&#xE7B8;" Style="{StaticResource TileIcon}"/>
-            <TextBlock Text="{DynamicResource s.home.new}" FontWeight="SemiBold"/>
-            <TextBlock Text="{DynamicResource s.home.newHint}" Style="{StaticResource Text.Muted}" FontSize="12"/>
-          </StackPanel>
-        </Button>
-        <Button Style="{StaticResource Button.Tile}" Margin="6" Command="{Binding ExtractCommand}">
-          <StackPanel>
-            <TextBlock Text="&#xE8DE;" Style="{StaticResource TileIcon}"/>
-            <TextBlock Text="{DynamicResource s.home.extract}" FontWeight="SemiBold"/>
-            <TextBlock Text="{DynamicResource s.home.extractHint}" Style="{StaticResource Text.Muted}" FontSize="12"/>
-          </StackPanel>
-        </Button>
-        <Button Style="{StaticResource Button.Tile}" Margin="6" Command="{Binding OpenCommand}">
-          <StackPanel>
-            <TextBlock Text="&#xE8B7;" Style="{StaticResource TileIcon}"/>
-            <TextBlock Text="{DynamicResource s.home.open}" FontWeight="SemiBold"/>
-            <TextBlock Text="{DynamicResource s.home.openHint}" Style="{StaticResource Text.Muted}" FontSize="12"/>
-          </StackPanel>
-        </Button>
-        <Button Style="{StaticResource Button.Tile}" Margin="6" Command="{Binding MountCommand}">
-          <StackPanel>
-            <TextBlock Text="&#xEDA2;" Style="{StaticResource TileIcon}"/>
-            <TextBlock Text="{DynamicResource s.home.mount}" FontWeight="SemiBold"/>
-            <TextBlock Text="{DynamicResource s.home.mountHint}" Style="{StaticResource Text.Muted}" FontSize="12"/>
-          </StackPanel>
-        </Button>
-        <Button Style="{StaticResource Button.Tile}" Margin="6" Command="{Binding VerifyCommand}">
-          <StackPanel>
-            <TextBlock Text="&#xE9F5;" Style="{StaticResource TileIcon}"/>
-            <TextBlock Text="{DynamicResource s.home.verify}" FontWeight="SemiBold"/>
-            <TextBlock Text="{DynamicResource s.home.verifyHint}" Style="{StaticResource Text.Muted}" FontSize="12"/>
-          </StackPanel>
-        </Button>
-      </UniformGrid>
-
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="3*"/>
-          <ColumnDefinition Width="16"/>
-          <ColumnDefinition Width="2*"/>
-        </Grid.ColumnDefinitions>
-        <Border Style="{StaticResource Card}">
-          <StackPanel>
-            <TextBlock Text="{DynamicResource s.home.recent}" Style="{StaticResource Text.Section}"/>
-            <TextBlock Text="{DynamicResource s.home.noRecent}" Style="{StaticResource Text.Muted}">
-              <TextBlock.Visibility>
-                <Binding Path="Recent.Count" Converter="{StaticResource NotVis}"/>
-              </TextBlock.Visibility>
-            </TextBlock>
-            <ItemsControl ItemsSource="{Binding Recent}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <Button Style="{StaticResource Button.Subtle}" HorizontalContentAlignment="Left" Padding="8,6"
-                          Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
-                    <StackPanel Orientation="Horizontal">
-                      <TextBlock Text="&#xE7C3;" FontFamily="{StaticResource Font.Icons}" Foreground="{DynamicResource Brush.Accent}" VerticalAlignment="Center"/>
-                      <TextBlock Text="{Binding}" Margin="10,0,0,0" TextTrimming="CharacterEllipsis" MaxWidth="520"/>
-                    </StackPanel>
-                  </Button>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </StackPanel>
-        </Border>
-        <Border Grid.Column="2" Style="{StaticResource Card}">
-          <StackPanel>
-            <TextBlock Text="{DynamicResource s.home.status}" Style="{StaticResource Text.Section}"/>
-            <TextBlock Text="{DynamicResource s.home.engine}" Style="{StaticResource Text.Label}"/>
-            <TextBlock Text="{Binding EngineText}" TextWrapping="Wrap" Margin="0,0,0,10"/>
-            <TextBlock Text="{DynamicResource s.home.vfs}" Style="{StaticResource Text.Label}"/>
-            <TextBlock Text="{Binding WinFspText}" TextWrapping="Wrap" Margin="0,0,0,10"/>
-            <TextBlock Text="{DynamicResource s.home.isolation}" Style="{StaticResource Text.Label}"/>
-            <TextBlock Text="{Binding WorkerText}" TextWrapping="Wrap" Margin="0,0,0,10"/>
-            <TextBlock Text="{DynamicResource s.home.offline}" Style="{StaticResource Text.Muted}" FontSize="12"/>
-          </StackPanel>
-        </Border>
-      </Grid>
-
-      <!-- Developer credit -->
-      <DockPanel Margin="2,18,2,0">
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-          <Button Style="{StaticResource Button.Subtle}" Command="{Binding OpenManualCommand}" Padding="10,4">
-            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE897;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="{DynamicResource s.settings.manual}" Margin="6,0,0,0"/></StackPanel>
-          </Button>
-          <Button Style="{StaticResource Button.Subtle}" Command="{Binding OpenYouTubeCommand}" Padding="10,4">
-            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE714;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="YouTube" Margin="6,0,0,0"/></StackPanel>
-          </Button>
-          <Button Style="{StaticResource Button.Subtle}" Command="{Binding OpenWebsiteCommand}" Padding="10,4">
-            <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE774;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="{DynamicResource s.settings.website}" Margin="6,0,0,0"/></StackPanel>
-          </Button>
-        </StackPanel>
-        <TextBlock VerticalAlignment="Center" Style="{StaticResource Text.Muted}">
-          <Run Text="{DynamicResource s.home.madeBy}"/><Run Text=" GPT PARK" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text}"/>
-        </TextBlock>
-      </DockPanel>
+      <TextBlock Text="{DynamicResource s.home.subtitle}" Style="{StaticResource Text.Subtitle}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
     </StackPanel>
-  </ScrollViewer>
+
+    <!-- Engine missing banner -->
+    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="14,10" BorderBrush="{DynamicResource Brush.Danger}" Margin="0,0,0,10"
+            Visibility="{Binding EngineOk, Converter={StaticResource NotVis}}">
+      <StackPanel>
+        <TextBlock Text="{DynamicResource s.home.engineMissingTitle}" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Danger}"/>
+        <TextBlock Text="{Binding EngineText}" Style="{StaticResource Text.Muted}" FontSize="12" MaxHeight="34" TextTrimming="CharacterEllipsis"/>
+      </StackPanel>
+    </Border>
+
+    <!-- Drop zone -->
+    <Border Grid.Row="2" Background="{DynamicResource Brush.DropZone}" CornerRadius="14" Padding="16" Margin="0,0,0,12" Height="118" BorderThickness="1.5">
+      <Border.BorderBrush>
+        <DrawingBrush Viewport="0,0,12,12" ViewportUnits="Absolute" TileMode="Tile">
+          <DrawingBrush.Drawing>
+            <GeometryDrawing Brush="{DynamicResource Brush.Accent}">
+              <GeometryDrawing.Geometry>
+                <GeometryGroup>
+                  <RectangleGeometry Rect="0,0,6,6"/>
+                  <RectangleGeometry Rect="6,6,6,6"/>
+                </GeometryGroup>
+              </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+          </DrawingBrush.Drawing>
+        </DrawingBrush>
+      </Border.BorderBrush>
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="&#xE896;" FontFamily="{StaticResource Font.Icons}" FontSize="28" Foreground="{DynamicResource Brush.Accent}" HorizontalAlignment="Center"/>
+        <TextBlock Text="{DynamicResource s.home.drop}" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,6,0,2"/>
+        <TextBlock Text="{DynamicResource s.home.dropHint}" Style="{StaticResource Text.Muted}" HorizontalAlignment="Center" TextAlignment="Center"/>
+      </StackPanel>
+    </Border>
+
+    <!-- Quick actions -->
+    <UniformGrid Grid.Row="3" Columns="5" Margin="-5,0,-5,12">
+      <Button Style="{StaticResource Button.Tile}" Margin="5" Padding="14,10" Command="{Binding NewArchiveCommand}">
+        <StackPanel>
+          <TextBlock Text="&#xE7B8;" Style="{StaticResource TileIcon}"/>
+          <TextBlock Text="{DynamicResource s.home.new}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="{DynamicResource s.home.newHint}" Style="{StaticResource Text.Muted}" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+      </Button>
+      <Button Style="{StaticResource Button.Tile}" Margin="5" Padding="14,10" Command="{Binding ExtractCommand}">
+        <StackPanel>
+          <TextBlock Text="&#xE8DE;" Style="{StaticResource TileIcon}"/>
+          <TextBlock Text="{DynamicResource s.home.extract}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="{DynamicResource s.home.extractHint}" Style="{StaticResource Text.Muted}" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+      </Button>
+      <Button Style="{StaticResource Button.Tile}" Margin="5" Padding="14,10" Command="{Binding OpenCommand}">
+        <StackPanel>
+          <TextBlock Text="&#xE8B7;" Style="{StaticResource TileIcon}"/>
+          <TextBlock Text="{DynamicResource s.home.open}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="{DynamicResource s.home.openHint}" Style="{StaticResource Text.Muted}" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+      </Button>
+      <Button Style="{StaticResource Button.Tile}" Margin="5" Padding="14,10" Command="{Binding MountCommand}">
+        <StackPanel>
+          <TextBlock Text="&#xEDA2;" Style="{StaticResource TileIcon}"/>
+          <TextBlock Text="{DynamicResource s.home.mount}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="{DynamicResource s.home.mountHint}" Style="{StaticResource Text.Muted}" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+      </Button>
+      <Button Style="{StaticResource Button.Tile}" Margin="5" Padding="14,10" Command="{Binding VerifyCommand}">
+        <StackPanel>
+          <TextBlock Text="&#xE9F5;" Style="{StaticResource TileIcon}"/>
+          <TextBlock Text="{DynamicResource s.home.verify}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="{DynamicResource s.home.verifyHint}" Style="{StaticResource Text.Muted}" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+      </Button>
+    </UniformGrid>
+
+    <Grid Grid.Row="4">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="3*"/>
+        <ColumnDefinition Width="14"/>
+        <ColumnDefinition Width="2*"/>
+      </Grid.ColumnDefinitions>
+      <Border Style="{StaticResource Card}" Padding="14,12">
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Top" Text="{DynamicResource s.home.recent}" Style="{StaticResource Text.Section}" Margin="0,0,0,4"/>
+          <TextBlock DockPanel.Dock="Top" Text="{DynamicResource s.home.noRecent}" Style="{StaticResource Text.Muted}"
+                     Visibility="{Binding Recent.Count, Converter={StaticResource NotVis}}"/>
+          <!-- At most a handful of recent files (view model limits the count), never a scrollbar. -->
+          <ItemsControl ItemsSource="{Binding Recent}" ClipToBounds="True">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Button Style="{StaticResource Button.Subtle}" HorizontalContentAlignment="Left" Padding="6,4" MinHeight="28"
+                        Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
+                        ToolTip="{Binding}">
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE7C3;" FontFamily="{StaticResource Font.Icons}" Foreground="{DynamicResource Brush.Accent}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding}" Margin="8,0,0,0" TextTrimming="CharacterEllipsis" MaxWidth="480"/>
+                  </StackPanel>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </DockPanel>
+      </Border>
+      <Border Grid.Column="2" Style="{StaticResource Card}" Padding="14,12">
+        <StackPanel ClipToBounds="True">
+          <TextBlock Text="{DynamicResource s.home.status}" Style="{StaticResource Text.Section}" Margin="0,0,0,4"/>
+          <TextBlock Text="{DynamicResource s.home.engine}" Style="{StaticResource Text.Label}" Margin="0,0,0,1"/>
+          <TextBlock Text="{Binding EngineText}" TextWrapping="Wrap" FontSize="13" Margin="0,0,0,8" MaxHeight="36" TextTrimming="CharacterEllipsis" ToolTip="{Binding EngineText}"/>
+          <TextBlock Text="{DynamicResource s.home.vfs}" Style="{StaticResource Text.Label}" Margin="0,0,0,1"/>
+          <TextBlock Text="{Binding WinFspText}" TextWrapping="Wrap" FontSize="13" Margin="0,0,0,8" MaxHeight="54" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="{DynamicResource s.home.isolation}" Style="{StaticResource Text.Label}" Margin="0,0,0,1"/>
+          <TextBlock Text="{Binding WorkerText}" TextWrapping="Wrap" FontSize="13" Margin="0,0,0,8"/>
+          <TextBlock Text="{DynamicResource s.home.offline}" Style="{StaticResource Text.Muted}" FontSize="12"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- Developer credit -->
+    <DockPanel Grid.Row="5" Margin="2,10,2,0">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+        <Button Style="{StaticResource Button.Subtle}" Command="{Binding OpenManualCommand}" Padding="10,4" MinHeight="28">
+          <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE897;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="{DynamicResource s.settings.manual}" Margin="6,0,0,0"/></StackPanel>
+        </Button>
+        <Button Style="{StaticResource Button.Subtle}" Command="{Binding OpenYouTubeCommand}" Padding="10,4" MinHeight="28">
+          <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE714;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="YouTube" Margin="6,0,0,0"/></StackPanel>
+        </Button>
+        <Button Style="{StaticResource Button.Subtle}" Command="{Binding OpenWebsiteCommand}" Padding="10,4" MinHeight="28">
+          <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE774;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="{DynamicResource s.settings.website}" Margin="6,0,0,0"/></StackPanel>
+        </Button>
+      </StackPanel>
+      <TextBlock VerticalAlignment="Center" Style="{StaticResource Text.Muted}">
+        <Run Text="{DynamicResource s.home.madeBy}"/><Run Text=" GPT PARK" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text}"/>
+      </TextBlock>
+    </DockPanel>
+  </Grid>
 </UserControl>

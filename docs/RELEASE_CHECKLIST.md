@@ -75,3 +75,14 @@
 - `dotnet test Zipark.sln -c Release` → **78 / 78 통과**. UI 렌더 확인(홈 하단 개발자 표시, 환경설정 정보 섹션).
 - `Zipark-1.0.0-x64.msi` (50.5 MB, SHA-256 `caee4d35…d713ff86`): Manufacturer "GPT PARK", ARPURLINFOABOUT https://gptparkai.com/, ARPHELPLINK 유튜브.
 - `Zipark-1.0.0-x64-portable.zip` (61.7 MB, SHA-256 `69ca0f83…f85f0f2`).
+
+### 2026-11-03 — 1.0.1: 고정 창 크기, 스크롤 없는 레이아웃
+- 창 고정(클라이언트 1184×700, 크기 조절 불가·최소화 가능). 작업 영역이 작으면 전체 레이아웃을 비율 축소.
+- 홈·새 압축·압축 해제를 다시 배치하고, 분할·암호·환경설정(탭)의 페이지 스크롤을 없앰.
+- 자동 레이아웃 검사(`Zipark.exe --screenshot-pages`의 `layout-report.txt`): 각 화면의 자연 높이가 창 높이 안에 들어가는지와 스크롤바 표시 여부를 측정.
+  - 한국어/라이트, 영어/다크(전문가 모드), 최악 조건(새 압축의 분할·암호·경고를 모두 펼침, 최근 파일 15개)에서 **19개 화면 모두 넘침 0, 스크롤바 0**. 릴리스 빌드에서도 동일.
+  - 발견·수정: 스냅샷 도구가 VisualBrush 늘림 때문에 오른쪽 여백을 실제와 다르게 그리던 문제(1:1 매핑으로 수정).
+- 버전 1.0.1 (`Directory.Build.props`에서 단일 관리): MSI ProductVersion 1.0.1.0, Zipark.exe 1.0.1 — 설치된 1.0.0을 업그레이드하도록.
+- `dotnet test Zipark.sln -c Release` → **78 / 78 통과**.
+- `Zipark-1.0.1-x64.msi` (50.5 MB, SHA-256 `b58f8253…eda95afa`), `Zipark-1.0.1-x64-portable.zip` (61.7 MB, SHA-256 `2d909d75…855b4d9a`).
+- 사용자가 1.0.0 MSI를 직접 설치한 것을 확인(설치된 앱: Zipark 1.0.0.0, 게시자 GPT PARK). 설치 시 우클릭 메뉴 등록 커스텀 액션이 동작했음을 레지스트리로 확인 — 기존 "MSI 설치 미검증" 항목 중 설치·셸 등록 부분은 확인됨(제거는 미검증).

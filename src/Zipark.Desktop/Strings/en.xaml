@@ -300,6 +300,7 @@
   <sys:String x:Key="s.settings.shellWin11" xml:space="preserve">On Windows 11 it appears under 'Show more options' (Shift+F10).</sys:String>
   <sys:String x:Key="s.settings.source" xml:space="preserve">Source code (GitHub)</sys:String>
   <sys:String x:Key="s.settings.subtitle" xml:space="preserve">Settings are stored only in your user profile on this PC. Passwords are never stored.</sys:String>
+  <sys:String x:Key="s.settings.tabSystem" xml:space="preserve">Explorer &amp; engine</sys:String>
   <sys:String x:Key="s.settings.theme" xml:space="preserve">Theme</sys:String>
   <sys:String x:Key="s.settings.title" xml:space="preserve">Settings</sys:String>
   <sys:String x:Key="s.settings.website" xml:space="preserve">Website</sys:String>

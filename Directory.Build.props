@@ -8,7 +8,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <RuntimeIdentifier Condition="'$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe'">win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Company>GPT PARK</Company>
     <Authors>GPT PARK</Authors>
     <Product>Zipark</Product>

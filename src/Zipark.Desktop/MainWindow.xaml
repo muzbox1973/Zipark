@@ -4,7 +4,7 @@
         xmlns:vm="clr-namespace:Zipark.Desktop.ViewModels"
         xmlns:v="clr-namespace:Zipark.Desktop.Views"
         xmlns:infra="clr-namespace:Zipark.Desktop.Infrastructure"
-        Title="Zipark" Width="1180" Height="760" MinWidth="860" MinHeight="560"
+        Title="Zipark" SizeToContent="WidthAndHeight" ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen" Icon="/Zipark;component/Assets/Zipark.ico"
         Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
         FontFamily="{StaticResource Font.UI}" FontSize="14" AllowDrop="True"
@@ -38,9 +38,11 @@
     <infra:NullToVisibilityConverter x:Key="NullVis"/>
   </Window.Resources>
 
-  <Grid>
+  <!-- Fixed client size: every page is laid out to fit without page scrolling. On small screens the
+       whole layout is scaled down (MainWindow.FitToWorkArea) instead of introducing scrollbars. -->
+  <Grid x:Name="Root" Width="1184" Height="700">
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="224"/>
+      <ColumnDefinition Width="208"/>
       <ColumnDefinition/>
     </Grid.ColumnDefinitions>
 

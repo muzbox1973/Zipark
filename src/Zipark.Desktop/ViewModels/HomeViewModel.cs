@@ -41,6 +41,9 @@ public sealed class HomeViewModel : ObservableObject
     public ICommand VerifyCommand { get; }
     public ICommand OpenRecentCommand { get; }
 
+    /// <summary>The home page has a fixed layout; only this many recent archives fit without scrolling.</summary>
+    public const int MaxRecentShown = 6;
+
     public ObservableCollection<string> Recent { get; } = [];
 
     public bool EngineOk => AppServices.Current.EnginePath is not null;
@@ -54,7 +57,7 @@ public sealed class HomeViewModel : ObservableObject
     public void Refresh()
     {
         Recent.Clear();
-        foreach (var r in AppServices.Current.Settings.RecentArchives) Recent.Add(r);
+        foreach (var r in AppServices.Current.Settings.RecentArchives.Take(MaxRecentShown)) Recent.Add(r);
         Raise(nameof(EngineOk));
         Raise(nameof(EngineText));
         Raise(nameof(WinFspOk));

@@ -300,6 +300,7 @@
   <sys:String x:Key="s.settings.shellWin11" xml:space="preserve">Windows 11에서는 [더 많은 옵션 표시](Shift+F10) 안에 나타납니다.</sys:String>
   <sys:String x:Key="s.settings.source" xml:space="preserve">소스 코드 (GitHub)</sys:String>
   <sys:String x:Key="s.settings.subtitle" xml:space="preserve">설정은 이 PC의 사용자 폴더에만 저장됩니다. 암호는 저장하지 않습니다.</sys:String>
+  <sys:String x:Key="s.settings.tabSystem" xml:space="preserve">탐색기·엔진</sys:String>
   <sys:String x:Key="s.settings.theme" xml:space="preserve">테마</sys:String>
   <sys:String x:Key="s.settings.title" xml:space="preserve">환경설정</sys:String>
   <sys:String x:Key="s.settings.website" xml:space="preserve">공식 사이트</sys:String>

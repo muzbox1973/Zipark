@@ -5,96 +5,106 @@
   <UserControl.Resources>
     <infra:BoolToVisibilityConverter x:Key="Vis"/>
   </UserControl.Resources>
-  <ScrollViewer VerticalScrollBarVisibility="Auto">
-    <StackPanel Margin="32,28,32,90" MaxWidth="1000">
+
+  <!-- Fixed layout: no page scrolling. -->
+  <Grid Margin="28,20,28,16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition/>
+    </Grid.RowDefinitions>
+    <StackPanel Margin="0,0,0,12">
       <TextBlock Text="{DynamicResource s.split.title}" Style="{StaticResource Text.Title}"/>
-      <TextBlock Text="{DynamicResource s.split.subtitle}" Style="{StaticResource Text.Subtitle}" Margin="0,0,0,16"/>
-
-      <Border Style="{StaticResource Card}" Margin="0,0,0,14">
-        <StackPanel>
-          <TextBlock Text="{DynamicResource s.split.size}" Style="{StaticResource Text.Section}"/>
-          <StackPanel Orientation="Horizontal">
-            <ComboBox Width="200" ItemsSource="{Binding Presets}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Preset}"/>
-            <TextBox Width="160" Margin="8,0,0,0" Text="{Binding Custom, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding IsCustom, Converter={StaticResource Vis}}"/>
-            <TextBlock Text="{DynamicResource s.split.customHint}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"
-                       Visibility="{Binding IsCustom, Converter={StaticResource Vis}}"/>
-          </StackPanel>
-        </StackPanel>
-      </Border>
-
-      <TabControl>
-        <TabItem Header="{DynamicResource s.split.tabArchive}">
-          <Border Style="{StaticResource Card}">
-            <StackPanel>
-              <TextBlock Text="{DynamicResource s.split.archiveHint}" Style="{StaticResource Text.Muted}" Margin="0,0,0,10"/>
-              <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Button Content="{DynamicResource s.compress.addFiles}" Command="{Binding AddArchiveSourcesCommand}" Margin="0,0,6,0"/>
-                <Button Content="{DynamicResource s.compress.addFolder}" Command="{Binding AddArchiveFolderCommand}" Margin="0,0,6,0"/>
-                <Button Content="{DynamicResource s.common.clear}" Command="{Binding ClearArchiveSourcesCommand}" Style="{StaticResource Button.Subtle}"/>
-                <TextBlock Text="{DynamicResource s.compress.format}" VerticalAlignment="Center" Margin="16,0,8,0"/>
-                <ComboBox Width="100" ItemsSource="{Binding Formats}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Format}"/>
-              </StackPanel>
-              <ListBox ItemsSource="{Binding ArchiveSources}" MinHeight="70" MaxHeight="160" Background="{DynamicResource Brush.Input}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
-              <Button Style="{StaticResource Button.Accent}" Content="{DynamicResource s.split.next}" Command="{Binding CreateSplitArchiveCommand}" HorizontalAlignment="Right" Margin="0,10,0,0"/>
-            </StackPanel>
-          </Border>
-        </TabItem>
-        <TabItem Header="{DynamicResource s.split.tabRaw}">
-          <Border Style="{StaticResource Card}">
-            <StackPanel>
-              <TextBlock Text="{DynamicResource s.split.rawHint}" Style="{StaticResource Text.Muted}" Margin="0,0,0,10"/>
-              <TextBlock Text="{DynamicResource s.split.file}" Style="{StaticResource Text.Label}"/>
-              <DockPanel Margin="0,0,0,10">
-                <Button DockPanel.Dock="Right" Content="{DynamicResource s.common.browse}" Command="{Binding PickRawCommand}" Margin="8,0,0,0"/>
-                <TextBox Text="{Binding RawFile, UpdateSourceTrigger=PropertyChanged}"/>
-              </DockPanel>
-              <TextBlock Text="{DynamicResource s.split.outFolder}" Style="{StaticResource Text.Label}"/>
-              <DockPanel Margin="0,0,0,10">
-                <Button DockPanel.Dock="Right" Content="{DynamicResource s.common.browse}" Command="{Binding PickRawDestCommand}" Margin="8,0,0,0"/>
-                <TextBox Text="{Binding RawDestination, UpdateSourceTrigger=PropertyChanged}"/>
-              </DockPanel>
-              <Button Style="{StaticResource Button.Accent}" Content="{DynamicResource s.split.doSplit}" Command="{Binding SplitRawCommand}" HorizontalAlignment="Right"/>
-            </StackPanel>
-          </Border>
-        </TabItem>
-        <TabItem Header="{DynamicResource s.split.tabMerge}">
-          <Border Style="{StaticResource Card}">
-            <StackPanel>
-              <TextBlock Text="{DynamicResource s.split.mergeHint}" Style="{StaticResource Text.Muted}" Margin="0,0,0,10"/>
-              <DockPanel Margin="0,0,0,10">
-                <Button DockPanel.Dock="Right" Content="{DynamicResource s.common.browse}" Command="{Binding PickMergeCommand}" Margin="8,0,0,0"/>
-                <TextBox Text="{Binding MergeSource, UpdateSourceTrigger=PropertyChanged}"/>
-              </DockPanel>
-              <Button Style="{StaticResource Button.Accent}" Content="{DynamicResource s.split.doMerge}" Command="{Binding MergeCommand}" HorizontalAlignment="Right"/>
-            </StackPanel>
-          </Border>
-        </TabItem>
-        <TabItem Header="{DynamicResource s.split.tabInspect}">
-          <Border Style="{StaticResource Card}">
-            <StackPanel>
-              <TextBlock Text="{DynamicResource s.split.inspectHint}" Style="{StaticResource Text.Muted}" Margin="0,0,0,10"/>
-              <Button Content="{DynamicResource s.split.pickVolume}" Command="{Binding InspectCommand}" HorizontalAlignment="Left"/>
-              <TextBlock Text="{Binding InspectPath}" Margin="0,10,0,0" TextTrimming="CharacterEllipsis"/>
-              <TextBlock Text="{Binding InspectSummary}" FontWeight="SemiBold" Margin="0,4,0,8"/>
-              <Grid>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition/>
-                  <ColumnDefinition Width="16"/>
-                  <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                  <TextBlock Text="{DynamicResource s.split.found}" Style="{StaticResource Text.Label}"/>
-                  <ListBox ItemsSource="{Binding InspectVolumes}" MaxHeight="180"/>
-                </StackPanel>
-                <StackPanel Grid.Column="2">
-                  <TextBlock Text="{DynamicResource s.split.missingList}" Style="{StaticResource Text.Label}"/>
-                  <ListBox ItemsSource="{Binding InspectMissing}" MaxHeight="180" Foreground="{DynamicResource Brush.Danger}"/>
-                </StackPanel>
-              </Grid>
-            </StackPanel>
-          </Border>
-        </TabItem>
-      </TabControl>
+      <TextBlock Text="{DynamicResource s.split.subtitle}" Style="{StaticResource Text.Subtitle}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                 ToolTip="{DynamicResource s.split.subtitle}"/>
     </StackPanel>
-  </ScrollViewer>
+
+    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="14,10" Margin="0,0,0,4">
+      <DockPanel>
+        <TextBlock Text="{DynamicResource s.split.size}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+        <ComboBox Width="180" ItemsSource="{Binding Presets}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Preset}"/>
+        <TextBox Width="140" Margin="8,0,0,0" Text="{Binding Custom, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding IsCustom, Converter={StaticResource Vis}}"/>
+        <TextBlock Text="{DynamicResource s.split.customHint}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center"
+                   Visibility="{Binding IsCustom, Converter={StaticResource Vis}}"/>
+      </DockPanel>
+    </Border>
+
+    <TabControl Grid.Row="2" Padding="0,10,0,0">
+      <TabItem Header="{DynamicResource s.split.tabArchive}">
+        <Border Style="{StaticResource Card}" Padding="14,12">
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Top" Text="{DynamicResource s.split.archiveHint}" Style="{StaticResource Text.Muted}" Margin="0,0,0,8"/>
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+              <Button Content="{DynamicResource s.compress.addFiles}" Command="{Binding AddArchiveSourcesCommand}" Margin="0,0,6,0"/>
+              <Button Content="{DynamicResource s.compress.addFolder}" Command="{Binding AddArchiveFolderCommand}" Margin="0,0,6,0"/>
+              <Button Content="{DynamicResource s.common.clear}" Command="{Binding ClearArchiveSourcesCommand}" Style="{StaticResource Button.Subtle}"/>
+              <TextBlock Text="{DynamicResource s.compress.format}" VerticalAlignment="Center" Margin="16,0,8,0"/>
+              <ComboBox Width="100" ItemsSource="{Binding Formats}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Format}"/>
+            </StackPanel>
+            <Button DockPanel.Dock="Bottom" Style="{StaticResource Button.Accent}" Content="{DynamicResource s.split.next}" Command="{Binding CreateSplitArchiveCommand}"
+                    HorizontalAlignment="Right" Margin="0,10,0,0"/>
+            <ListBox ItemsSource="{Binding ArchiveSources}" Background="{DynamicResource Brush.Input}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+          </DockPanel>
+        </Border>
+      </TabItem>
+      <TabItem Header="{DynamicResource s.split.tabRaw}">
+        <Border Style="{StaticResource Card}" Padding="14,12" VerticalAlignment="Top">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource s.split.rawHint}" Style="{StaticResource Text.Muted}" Margin="0,0,0,10"/>
+            <TextBlock Text="{DynamicResource s.split.file}" Style="{StaticResource Text.Label}"/>
+            <DockPanel Margin="0,0,0,10">
+              <Button DockPanel.Dock="Right" Content="{DynamicResource s.common.browse}" Command="{Binding PickRawCommand}" Margin="8,0,0,0"/>
+              <TextBox Text="{Binding RawFile, UpdateSourceTrigger=PropertyChanged}"/>
+            </DockPanel>
+            <TextBlock Text="{DynamicResource s.split.outFolder}" Style="{StaticResource Text.Label}"/>
+            <DockPanel Margin="0,0,0,10">
+              <Button DockPanel.Dock="Right" Content="{DynamicResource s.common.browse}" Command="{Binding PickRawDestCommand}" Margin="8,0,0,0"/>
+              <TextBox Text="{Binding RawDestination, UpdateSourceTrigger=PropertyChanged}"/>
+            </DockPanel>
+            <Button Style="{StaticResource Button.Accent}" Content="{DynamicResource s.split.doSplit}" Command="{Binding SplitRawCommand}" HorizontalAlignment="Right"/>
+          </StackPanel>
+        </Border>
+      </TabItem>
+      <TabItem Header="{DynamicResource s.split.tabMerge}">
+        <Border Style="{StaticResource Card}" Padding="14,12" VerticalAlignment="Top">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource s.split.mergeHint}" Style="{StaticResource Text.Muted}" Margin="0,0,0,10"/>
+            <DockPanel Margin="0,0,0,10">
+              <Button DockPanel.Dock="Right" Content="{DynamicResource s.common.browse}" Command="{Binding PickMergeCommand}" Margin="8,0,0,0"/>
+              <TextBox Text="{Binding MergeSource, UpdateSourceTrigger=PropertyChanged}"/>
+            </DockPanel>
+            <Button Style="{StaticResource Button.Accent}" Content="{DynamicResource s.split.doMerge}" Command="{Binding MergeCommand}" HorizontalAlignment="Right"/>
+          </StackPanel>
+        </Border>
+      </TabItem>
+      <TabItem Header="{DynamicResource s.split.tabInspect}">
+        <Border Style="{StaticResource Card}" Padding="14,12">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Top">
+              <TextBlock Text="{DynamicResource s.split.inspectHint}" Style="{StaticResource Text.Muted}" Margin="0,0,0,8"/>
+              <Button Content="{DynamicResource s.split.pickVolume}" Command="{Binding InspectCommand}" HorizontalAlignment="Left"/>
+              <TextBlock Text="{Binding InspectPath}" Margin="0,8,0,0" TextTrimming="CharacterEllipsis"/>
+              <TextBlock Text="{Binding InspectSummary}" FontWeight="SemiBold" Margin="0,2,0,8"/>
+            </StackPanel>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition/>
+              </Grid.ColumnDefinitions>
+              <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="{DynamicResource s.split.found}" Style="{StaticResource Text.Label}"/>
+                <ListBox ItemsSource="{Binding InspectVolumes}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+              </DockPanel>
+              <DockPanel Grid.Column="2">
+                <TextBlock DockPanel.Dock="Top" Text="{DynamicResource s.split.missingList}" Style="{StaticResource Text.Label}"/>
+                <ListBox ItemsSource="{Binding InspectMissing}" Foreground="{DynamicResource Brush.Danger}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+              </DockPanel>
+            </Grid>
+          </DockPanel>
+        </Border>
+      </TabItem>
+    </TabControl>
+  </Grid>
 </UserControl>
