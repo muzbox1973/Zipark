@@ -10,6 +10,8 @@
     <PublishDir Condition="'$(PublishDir)' == ''">$(MSBuildThisFileDirectory)..\..\artifacts\publish\</PublishDir>
     <DefineConstants>PublishDir=$(PublishDir);ProductVersion=$(Version)</DefineConstants>
     <SuppressValidation>false</SuppressValidation>
+    <!-- Korean installer UI (WixUI ko-KR strings) -->
+    <Cultures>ko-KR</Cultures>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />

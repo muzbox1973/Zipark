@@ -1,8 +1,8 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="Zipark" Manufacturer="GPT PARK" Version="$(ProductVersion).0"
-           UpgradeCode="DE28E8D9-B6CC-4053-8104-ABEEDD8F4532" Scope="perMachine" Language="1033">
-    <SummaryInformation Description="Zipark - free open-source archiver" />
-    <MajorUpgrade DowngradeErrorMessage="A newer version of Zipark is already installed." />
+           UpgradeCode="DE28E8D9-B6CC-4053-8104-ABEEDD8F4532" Scope="perMachine" Language="1042" Codepage="949">
+    <SummaryInformation Description="Zipark - 무료 오픈소스 압축 프로그램" Codepage="949" Comments="Zipark(개발: GPT PARK)를 설치합니다. 무료 오픈소스 압축 프로그램, MIT 라이선스." />
+    <MajorUpgrade DowngradeErrorMessage="이미 더 새로운 버전의 Zipark가 설치되어 있습니다." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
     <Icon Id="ZiparkIcon" SourceFile="..\..\src\Zipark.Desktop\Assets\Zipark.ico" />
@@ -30,7 +30,7 @@
     </ComponentGroup>
 
     <Component Id="StartMenuShortcut" Directory="StartMenuDir" Guid="A53F65C4-C7E0-4B51-BA18-9F41B7B1367D">
-      <Shortcut Id="AppShortcut" Name="Zipark" Target="[INSTALLFOLDER]Zipark.exe" WorkingDirectory="INSTALLFOLDER" Icon="ZiparkIcon" />
+      <Shortcut Id="AppShortcut" Name="Zipark" Description="무료 오픈소스 압축 프로그램" Target="[INSTALLFOLDER]Zipark.exe" WorkingDirectory="INSTALLFOLDER" Icon="ZiparkIcon" />
       <RemoveFolder Id="RemoveStartMenuDir" On="uninstall" />
       <RegistryValue Root="HKCU" Key="Software\Zipark" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
     </Component>

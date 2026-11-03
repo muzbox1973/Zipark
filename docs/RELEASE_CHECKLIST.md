@@ -109,3 +109,14 @@
   - UI Automation으로 "남은 충돌 2개에도 같은 선택 적용" 체크 후 선택.
   - **둘 다 유지**: 원본 3개 유지 + `(2)` 3개 생성. **덮어쓰기**: 3개 모두 교체. 두 경우 모두 앱이 스스로 종료.
 - `Zipark-1.0.3-x64.msi` (SHA-256 `ccdf8ab6…d7933c10`), `Zipark-1.0.3-x64-portable.zip` (SHA-256 `ba562f43…18aa84f`).
+
+### 2026-11-03 — 1.0.4: 설치 프로그램 한글화
+- WiX `Cultures=ko-KR`, Package `Language=1042` / `Codepage=949`, 요약 정보 코드 페이지 949.
+- MSI 테이블에서 직접 확인(읽기 전용):
+  - `ProductLanguage`=1042, `ProductVersion`=1.0.4.0.
+  - 모든 대화상자 제목이 "[ProductName] 설치"이고, 버튼은 "다음(&N)", "뒤로(&B)", "취소", "변경(&C)...", "설치(&I)", "마침(&F)"이며, 사용권 체크박스는 "동의함(&A)".
+  - 사용권 계약 화면 텍스트를 RichEdit로 해석한 결과 첫 줄이 "Zipark 라이선스 안내"이고, 한국어 안내 다음에 MIT 원문이 있음.
+  - 요약 정보: 제목·주석이 한국어.
+- 설치 화면을 실제로 띄워 육안으로 확인하지는 않음(설치 프로그램 실행은 시스템 변경이므로 사용자가 직접 실행).
+- `dotnet test Zipark.sln -c Release` → **86 / 86 통과**.
+- `Zipark-1.0.4-x64.msi` (SHA-256 `89d50a4f…ffee1aed8`), `Zipark-1.0.4-x64-portable.zip` (SHA-256 `34fc2bc1…75c61cb3592`).
