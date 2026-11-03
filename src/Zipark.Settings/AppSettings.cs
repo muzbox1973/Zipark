@@ -11,7 +11,8 @@ public enum ThemeMode { System, Light, Dark }
 /// </summary>
 public sealed class AppSettings
 {
-    public int Version { get; set; } = 1;
+    /// <summary>Settings schema version (see <see cref="SettingsStore.Migrate"/>).</summary>
+    public int Version { get; set; } = SettingsStore.CurrentVersion;
     /// <summary>"ko" or "en".</summary>
     public string Language { get; set; } = "ko";
     public ThemeMode Theme { get; set; } = ThemeMode.System;
@@ -22,7 +23,8 @@ public sealed class AppSettings
     public int DefaultLevel { get; set; } = 5;
     /// <summary>0 = all cores.</summary>
     public int Threads { get; set; }
-    public ConflictPolicy Conflict { get; set; } = ConflictPolicy.Rename;
+    /// <summary>What extraction does when a file already exists. Default: ask the user.</summary>
+    public ConflictPolicy Conflict { get; set; } = ConflictPolicy.Ask;
     public bool OpenFolderAfterExtract { get; set; } = true;
     public bool VerifyAfterCompress { get; set; }
     public int MaxParallelJobs { get; set; } = 1;
@@ -70,12 +72,26 @@ public sealed class SettingsStore
 
     public string FilePath => _path;
 
+    public const int CurrentVersion = 2;
+
+    /// <summary>Upgrades settings written by older versions.</summary>
+    public static AppSettings Migrate(AppSettings s)
+    {
+        if (s.Version < 2)
+        {
+            // 1.0.0–1.0.2 always saved the then-default "keep both"; 1.0.3 introduces asking per conflict.
+            if (s.Conflict == ConflictPolicy.Rename) s.Conflict = ConflictPolicy.Ask;
+            s.Version = 2;
+        }
+        return s;
+    }
+
     public AppSettings Load()
     {
         try
         {
             if (File.Exists(_path))
-                return JsonSerializer.Deserialize(File.ReadAllText(_path), SettingsJsonContext.Default.AppSettings) ?? new AppSettings();
+                return Migrate(JsonSerializer.Deserialize(File.ReadAllText(_path), SettingsJsonContext.Default.AppSettings) ?? new AppSettings());
         }
         catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
         {

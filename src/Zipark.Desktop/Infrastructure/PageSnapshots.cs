@@ -70,6 +70,21 @@ public static class PageSnapshots
         AppServices.Current.Notify.Success(Loc.T("s.kind.Compress") + " · " + Loc.T("s.stage.Completed"), "documents.zip", Loc.T("s.action.openFolder"), () => { });
         await Capture("notice");
 
+        // The "file already exists" question, in two variants.
+        var now = new DateTime(2026, 11, 3, 15, 51, 4);
+        foreach (var (name, info) in new[]
+        {
+            ("conflict-same", new Core.ConflictInfo { TargetPath = @"C:\작업폴더\coding\OrderFlow\dist\orderflow\index.html", ExistingSize = 285_696, ExistingModified = now, IncomingSize = 285_696, IncomingModified = now, RenameTo = "index (2).html", Remaining = 12 }),
+            ("conflict-newer", new Core.ConflictInfo { TargetPath = @"C:\Users\someone\Documents\보고서\2026년 3분기 매출 정리 최종본.xlsx", ExistingSize = 1_204_224, ExistingModified = now.AddDays(-9), IncomingSize = 1_310_720, IncomingModified = now, RenameTo = "2026년 3분기 매출 정리 최종본 (2).xlsx", Remaining = 0 }),
+        })
+        {
+            var dlg = new Views.ConflictDialog(info);
+            dlg.Show();
+            await Settle();
+            Save(dlg, Path.Combine(dir, name + ".png"));
+            dlg.Close();
+        }
+
         File.WriteAllText(Path.Combine(dir, "layout-report.txt"), report.ToString(), new UTF8Encoding(false));
     }
 
@@ -124,7 +139,8 @@ public static class PageSnapshots
     private static void Save(Window w, string file)
     {
         var dpi = VisualTreeHelper.GetDpi(w);
-        var content = (FrameworkElement)w.Content;
+        // The window's own root visual covers the whole client area, including the content's margins.
+        var content = VisualTreeHelper.GetChildrenCount(w) > 0 && VisualTreeHelper.GetChild(w, 0) is FrameworkElement chrome ? chrome : (FrameworkElement)w.Content;
         var bmp = new RenderTargetBitmap((int)(content.ActualWidth * dpi.DpiScaleX), (int)(content.ActualHeight * dpi.DpiScaleY), dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
         var visual = new DrawingVisual();
         using (var ctx = visual.RenderOpen())

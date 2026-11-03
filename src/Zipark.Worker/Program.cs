@@ -39,15 +39,36 @@ if (request.HasPassword)
 }
 
 using var cts = new CancellationTokenSource();
+TaskCompletionSource<ConflictAnswer>? pendingAnswer = null;
 _ = Task.Run(() =>
 {
-    // Any "cancel" line, or the parent closing stdin, stops the job cleanly.
+    // "cancel", or the parent closing stdin, stops the job cleanly.
+    // A JSON line is the user's answer to the conflict question currently waiting.
     var reason = "stdin closed";
     while (ReadLine(stdin) is { } l)
-        if (Encoding.UTF8.GetString(l).Trim() == "cancel") { reason = "cancel requested"; break; }
+    {
+        var text = Encoding.UTF8.GetString(l).Trim();
+        if (text == "cancel") { reason = "cancel requested"; break; }
+        if (text.StartsWith('{'))
+        {
+            ConflictAnswer? answer = null;
+            try { answer = JobJson.DeserializeAnswer(text); } catch (System.Text.Json.JsonException) { }
+            if (answer is not null) Interlocked.Exchange(ref pendingAnswer, null)?.TrySetResult(answer);
+        }
+    }
     Log.Info($"worker {Environment.ProcessId}: stopping job ({reason})");
     cts.Cancel();
 });
+
+// Called on the extraction thread for each name conflict (ConflictPolicy.Ask): ask the UI and wait.
+ConflictDecision AskUi(ConflictInfo info)
+{
+    var tcs = new TaskCompletionSource<ConflictAnswer>(TaskCreationOptions.RunContinuationsAsynchronously);
+    Volatile.Write(ref pendingAnswer, tcs);
+    Emit(new WorkerMessage { Type = "conflict", Conflict = info });
+    tcs.Task.Wait(cts.Token); // OperationCanceledException when the job is cancelled meanwhile
+    return new ConflictDecision(tcs.Task.Result.Choice, tcs.Task.Result.ApplyToAll);
+}
 
 JobResult result;
 try
@@ -61,7 +82,7 @@ try
         last = now;
         Emit(new WorkerMessage { Type = "progress", Progress = p });
     });
-    result = await new JobRunner(engine).RunAsync(request, password, progress, cts.Token);
+    result = await new JobRunner(engine, AskUi).RunAsync(request, password, progress, cts.Token);
 }
 catch (ZiparkException ex)
 {

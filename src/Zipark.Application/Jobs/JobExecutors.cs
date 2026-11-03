@@ -12,10 +12,13 @@ public interface IJobExecutor
     Task<JobResult> ExecuteAsync(JobRequest request, SecretPassword? password, IProgress<JobProgress>? progress, CancellationToken ct);
 }
 
-public sealed class InProcessJobExecutor(IArchiveEngine engine) : IJobExecutor
+/// <summary>Asks the user about a file-name conflict. Must not block the calling thread's message loop.</summary>
+public delegate Task<ConflictDecision> ConflictPromptAsync(ConflictInfo conflict);
+
+public sealed class InProcessJobExecutor(IArchiveEngine engine, ConflictPromptAsync? conflictPrompt = null) : IJobExecutor
 {
     public Task<JobResult> ExecuteAsync(JobRequest request, SecretPassword? password, IProgress<JobProgress>? progress, CancellationToken ct) =>
-        new JobRunner(engine).RunAsync(request, password, progress, ct);
+        new JobRunner(engine, conflictPrompt is null ? null : c => conflictPrompt(c).GetAwaiter().GetResult()).RunAsync(request, password, progress, ct);
 }
 
 /// <summary>
@@ -26,6 +29,9 @@ public sealed class InProcessJobExecutor(IArchiveEngine engine) : IJobExecutor
 public sealed class WorkerProcessJobExecutor : IJobExecutor
 {
     private readonly string _workerExe;
+
+    /// <summary>Answers conflict questions from the worker; without it the worker falls back to "keep both".</summary>
+    public ConflictPromptAsync? ConflictPrompt { get; set; }
 
     public WorkerProcessJobExecutor(string? workerExe = null)
     {
@@ -87,6 +93,19 @@ public sealed class WorkerProcessJobExecutor : IJobExecutor
                 continue;
             }
             if (msg?.Type == "progress" && msg.Progress is not null) progress?.Report(msg.Progress);
+            else if (msg?.Type == "conflict" && msg.Conflict is not null)
+            {
+                var d = ConflictPrompt is null ? new ConflictDecision(ConflictChoice.Rename, false) : await ConflictPrompt(msg.Conflict).ConfigureAwait(false);
+                try
+                {
+                    await stdin.WriteAsync(Encoding.UTF8.GetBytes(JobJson.Serialize(new ConflictAnswer { Choice = d.Choice, ApplyToAll = d.ApplyToAll }) + "\n"), CancellationToken.None).ConfigureAwait(false);
+                    await stdin.FlushAsync(CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (IOException)
+                {
+                    // worker already stopped (e.g. cancelled while the question was open)
+                }
+            }
             else if (msg?.Type == "result") result = msg.Result;
         }
         await p.WaitForExitAsync(CancellationToken.None).ConfigureAwait(false);

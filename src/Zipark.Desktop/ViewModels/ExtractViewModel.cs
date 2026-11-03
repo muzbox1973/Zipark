@@ -16,6 +16,9 @@ public sealed class ExtractRow(string path) : ObservableObject
 
 public sealed class ExtractViewModel : ObservableObject, INavigable
 {
+    /// <summary>Display order of conflict policies (asking first).</summary>
+    public static readonly ConflictPolicy[] ConflictOrder = [ConflictPolicy.Ask, ConflictPolicy.Rename, ConflictPolicy.Skip, ConflictPolicy.Overwrite];
+
     private bool _toSameFolder = true;
     private string _destination = "";
     private bool _createSubfolder = true;
@@ -72,7 +75,7 @@ public sealed class ExtractViewModel : ObservableObject, INavigable
     public bool CreateSubfolder { get => _createSubfolder; set => Set(ref _createSubfolder, value); }
     public ConflictPolicy Conflict { get => _conflict; set => Set(ref _conflict, value); }
     public bool OpenAfter { get => _openAfter; set => Set(ref _openAfter, value); }
-    public IReadOnlyList<Choice<ConflictPolicy>> ConflictChoices => Enum.GetValues<ConflictPolicy>().Select(c => new Choice<ConflictPolicy>(c, Loc.T("s.conflict." + c))).ToList();
+    public IReadOnlyList<Choice<ConflictPolicy>> ConflictChoices => ConflictOrder.Select(c => new Choice<ConflictPolicy>(c, Loc.T("s.conflict." + c))).ToList();
 
     public void OnNavigatedTo(object? parameter)
     {

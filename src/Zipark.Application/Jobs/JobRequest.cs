@@ -70,7 +70,7 @@ public sealed class JobRequest
         Conflict = Conflict,
     };
 
-    public ExtractOptions ToExtractOptions(SecretPassword? pw) => new()
+    public ExtractOptions ToExtractOptions(SecretPassword? pw, Func<ConflictInfo, ConflictDecision>? conflictPrompt = null) => new()
     {
         ArchivePath = Sources.FirstOrDefault() ?? throw new ZiparkException(ErrorCode.InvalidArgument, "Archive path missing."),
         Destination = Destination ?? throw new ZiparkException(ErrorCode.InvalidArgument, "Destination missing."),
@@ -81,6 +81,7 @@ public sealed class JobRequest
         AllowLimitOverride = AllowLimitOverride,
         Limits = new BombLimits { MaxTotalBytes = BombMaxTotalBytes, SuspiciousRatio = BombSuspiciousRatio },
         Conflict = Conflict,
+        ConflictPrompt = conflictPrompt,
     };
 }
 
@@ -106,16 +107,28 @@ public sealed class WorkerMessage
     public string Type { get; set; } = "";   // "progress" | "result"
     public JobProgress? Progress { get; set; }
     public JobResult? Result { get; set; }
+    /// <summary>Type "conflict": the worker waits for a <see cref="ConflictAnswer"/> line on stdin.</summary>
+    public ConflictInfo? Conflict { get; set; }
 }
 
 [JsonSerializable(typeof(JobRequest))]
 [JsonSerializable(typeof(JobResult))]
 [JsonSerializable(typeof(WorkerMessage))]
+[JsonSerializable(typeof(ConflictAnswer))]
 [JsonSourceGenerationOptions(UseStringEnumConverter = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class JobJsonContext : JsonSerializerContext;
 
+/// <summary>UI → worker reply to a conflict question (one JSON line on the worker's stdin).</summary>
+public sealed class ConflictAnswer
+{
+    public ConflictChoice Choice { get; set; }
+    public bool ApplyToAll { get; set; }
+}
+
 public static class JobJson
 {
+    public static string Serialize(ConflictAnswer a) => JsonSerializer.Serialize(a, JobJsonContext.Default.ConflictAnswer);
+    public static ConflictAnswer? DeserializeAnswer(string s) => JsonSerializer.Deserialize(s, JobJsonContext.Default.ConflictAnswer);
     public static string Serialize(JobRequest r) => JsonSerializer.Serialize(r, JobJsonContext.Default.JobRequest);
     public static JobRequest? DeserializeRequest(string s) => JsonSerializer.Deserialize(s, JobJsonContext.Default.JobRequest);
     public static string Serialize(WorkerMessage m) => JsonSerializer.Serialize(m, JobJsonContext.Default.WorkerMessage);

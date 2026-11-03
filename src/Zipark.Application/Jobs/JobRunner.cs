@@ -9,8 +9,14 @@ namespace Zipark.Application.Jobs;
 public sealed class JobRunner
 {
     private readonly IArchiveEngine _engine;
+    private readonly Func<ConflictInfo, ConflictDecision>? _conflictPrompt;
 
-    public JobRunner(IArchiveEngine engine) => _engine = engine;
+    /// <param name="conflictPrompt">Answers name conflicts for <see cref="ConflictPolicy.Ask"/> (may block).</param>
+    public JobRunner(IArchiveEngine engine, Func<ConflictInfo, ConflictDecision>? conflictPrompt = null)
+    {
+        _engine = engine;
+        _conflictPrompt = conflictPrompt;
+    }
 
     public async Task<JobResult> RunAsync(JobRequest r, SecretPassword? pw, IProgress<JobProgress>? progress, CancellationToken ct)
     {
@@ -66,7 +72,7 @@ public sealed class JobRunner
                 throw new ZiparkException(ErrorCode.MissingVolume, "Missing volume: " + string.Join(", ", set.Missing.Select(Path.GetFileName)));
             r.Sources[0] = set.EnginePath;
         }
-        var res = await _engine.ExtractAsync(r.ToExtractOptions(pw), progress, ct).ConfigureAwait(false);
+        var res = await _engine.ExtractAsync(r.ToExtractOptions(pw, _conflictPrompt), progress, ct).ConfigureAwait(false);
         var result = new JobResult { Success = true, Outputs = [res.Destination], Files = res.FilesWritten };
         if (res.Blocked.Count > 0) result.Warnings.Add($"blocked:{res.Blocked.Count}");
         if (res.Renamed > 0) result.Warnings.Add($"renamed:{res.Renamed}");

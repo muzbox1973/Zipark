@@ -50,9 +50,25 @@
   <sys:String x:Key="s.compress.title" xml:space="preserve">New archive</sys:String>
   <sys:String x:Key="s.compress.verify" xml:space="preserve">Test the archive after creating it</sys:String>
   <sys:String x:Key="s.compress.zipMethod" xml:space="preserve">ZIP encryption</sys:String>
+  <sys:String x:Key="s.conflict.Ask" xml:space="preserve">Ask every time</sys:String>
   <sys:String x:Key="s.conflict.Overwrite" xml:space="preserve">Overwrite</sys:String>
   <sys:String x:Key="s.conflict.Rename" xml:space="preserve">Keep both (rename new file)</sys:String>
   <sys:String x:Key="s.conflict.Skip" xml:space="preserve">Skip</sys:String>
+  <sys:String x:Key="s.conflictdlg.applyAll" xml:space="preserve">Do the same for the remaining {0} conflict(s)</sys:String>
+  <sys:String x:Key="s.conflictdlg.applyAllNone" xml:space="preserve">No other conflicts</sys:String>
+  <sys:String x:Key="s.conflictdlg.existing" xml:space="preserve">File already there</sys:String>
+  <sys:String x:Key="s.conflictdlg.heading" xml:space="preserve">A file with this name already exists</sys:String>
+  <sys:String x:Key="s.conflictdlg.incoming" xml:space="preserve">File from the archive</sys:String>
+  <sys:String x:Key="s.conflictdlg.keepBoth" xml:space="preserve">Keep both</sys:String>
+  <sys:String x:Key="s.conflictdlg.keepBothHint" xml:space="preserve">Save the new file as {0}</sys:String>
+  <sys:String x:Key="s.conflictdlg.newer" xml:space="preserve">Newer</sys:String>
+  <sys:String x:Key="s.conflictdlg.overwrite" xml:space="preserve">Replace</sys:String>
+  <sys:String x:Key="s.conflictdlg.overwriteHint" xml:space="preserve">Replace the existing file with the one from the archive</sys:String>
+  <sys:String x:Key="s.conflictdlg.same" xml:space="preserve">Same size and time — probably the same file.</sys:String>
+  <sys:String x:Key="s.conflictdlg.skip" xml:space="preserve">Skip</sys:String>
+  <sys:String x:Key="s.conflictdlg.skipHint" xml:space="preserve">Leave the existing file and don't extract this one</sys:String>
+  <sys:String x:Key="s.conflictdlg.stop" xml:space="preserve">Stop extracting</sys:String>
+  <sys:String x:Key="s.conflictdlg.title" xml:space="preserve">File already exists</sys:String>
   <sys:String x:Key="s.dlg.addFiles" xml:space="preserve">Add files</sys:String>
   <sys:String x:Key="s.dlg.addFolder" xml:space="preserve">Add folders</sys:String>
   <sys:String x:Key="s.dlg.allFiles" xml:space="preserve">All files</sys:String>

@@ -66,7 +66,7 @@ public sealed class SettingsViewModel : ObservableObject
     public IReadOnlyList<Choice<ThemeMode>> Themes => Enum.GetValues<ThemeMode>().Select(t => new Choice<ThemeMode>(t, Loc.T("s.theme." + t))).ToList();
     public IReadOnlyList<Choice<ArchiveFormat>> Formats { get; } = [new(ArchiveFormat.Zip, "ZIP"), new(ArchiveFormat.SevenZip, "7Z"), new(ArchiveFormat.Tar, "TAR")];
     public IReadOnlyList<Choice<int>> Levels => Enum.GetValues<CompressionLevel>().Select(l => new Choice<int>((int)l, Loc.T("s.level." + l))).ToList();
-    public IReadOnlyList<Choice<ConflictPolicy>> Conflicts => Enum.GetValues<ConflictPolicy>().Select(c => new Choice<ConflictPolicy>(c, Loc.T("s.conflict." + c))).ToList();
+    public IReadOnlyList<Choice<ConflictPolicy>> Conflicts => ExtractViewModel.ConflictOrder.Select(c => new Choice<ConflictPolicy>(c, Loc.T("s.conflict." + c))).ToList();
     public IReadOnlyList<char> DriveLetters { get; } = Enumerable.Range('D', 23).Select(c => (char)c).ToList();
 
     public string Language

@@ -54,6 +54,11 @@ public sealed class ExtractOptions
     /// <summary>Archive paths to extract (files or folders). Null/empty = everything.</summary>
     public IReadOnlyCollection<string>? Selection { get; init; }
     public ConflictPolicy Conflict { get; init; } = ConflictPolicy.Rename;
+    /// <summary>
+    /// Called for each name conflict when <see cref="Conflict"/> is <see cref="ConflictPolicy.Ask"/>.
+    /// Runs on the extraction thread and may block until the user answers.
+    /// </summary>
+    public Func<ConflictInfo, ConflictDecision>? ConflictPrompt { get; init; }
     /// <summary>Drop folder structure and put every file directly into the destination.</summary>
     public bool FlattenPaths { get; init; }
     /// <summary>Strip this archive folder prefix from extracted paths (used when extracting a sub-folder).</summary>

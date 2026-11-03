@@ -1,0 +1,109 @@
+<Window x:Class="Zipark.Desktop.Views.ConflictDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{DynamicResource s.conflictdlg.title}" Width="560" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
+        FontFamily="{StaticResource Font.UI}" FontSize="14" UseLayoutRounding="True">
+  <Window.Resources>
+    <!-- Large choice button: icon + title + one-line explanation. Clicking decides immediately. -->
+    <Style x:Key="Choice" TargetType="Button" BasedOn="{StaticResource Button.Tile}">
+      <Setter Property="Padding" Value="14,10"/>
+      <Setter Property="Margin" Value="0,0,0,8"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+    <Style x:Key="FileCard" TargetType="Border">
+      <Setter Property="Background" Value="{DynamicResource Brush.Surface}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="14,10"/>
+    </Style>
+  </Window.Resources>
+
+  <StackPanel Margin="22,18,22,16">
+    <!-- Header -->
+    <DockPanel Margin="0,0,0,12">
+      <Border DockPanel.Dock="Left" Width="40" Height="40" CornerRadius="20" Background="{DynamicResource Brush.AccentSoft}" Margin="0,0,12,0" VerticalAlignment="Top">
+        <TextBlock Text="&#xE8C8;" FontFamily="{StaticResource Font.Icons}" FontSize="18" Foreground="{DynamicResource Brush.Accent}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      </Border>
+      <StackPanel>
+        <TextBlock Text="{DynamicResource s.conflictdlg.heading}" FontSize="16" FontWeight="SemiBold"/>
+        <TextBlock x:Name="FileName" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Accent}" TextTrimming="CharacterEllipsis" Margin="0,4,0,0"/>
+        <TextBlock x:Name="Folder" Style="{StaticResource Text.Muted}" FontSize="12" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+      </StackPanel>
+    </DockPanel>
+
+    <!-- Side-by-side comparison -->
+    <Grid Margin="0,0,0,14">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition Width="34"/>
+        <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
+      <Border Style="{StaticResource FileCard}">
+        <StackPanel>
+          <DockPanel>
+            <Border x:Name="ExistingNewer" DockPanel.Dock="Right" Background="{DynamicResource Brush.Highlight}" CornerRadius="8" Padding="7,1" Visibility="Collapsed">
+              <TextBlock Text="{DynamicResource s.conflictdlg.newer}" FontSize="11" FontWeight="SemiBold" Foreground="#1B2427"/>
+            </Border>
+            <TextBlock Text="{DynamicResource s.conflictdlg.existing}" Style="{StaticResource Text.Label}" Margin="0"/>
+          </DockPanel>
+          <TextBlock x:Name="ExistingSize" FontSize="18" FontWeight="SemiBold" Margin="0,6,0,0"/>
+          <TextBlock x:Name="ExistingDate" Style="{StaticResource Text.Muted}" FontSize="12"/>
+        </StackPanel>
+      </Border>
+      <TextBlock Grid.Column="1" Text="&#xE8AB;" FontFamily="{StaticResource Font.Icons}" FontSize="16" Foreground="{DynamicResource Brush.TextMuted}"
+                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <Border Grid.Column="2" Style="{StaticResource FileCard}" BorderBrush="{DynamicResource Brush.Accent}">
+        <StackPanel>
+          <DockPanel>
+            <Border x:Name="IncomingNewer" DockPanel.Dock="Right" Background="{DynamicResource Brush.Highlight}" CornerRadius="8" Padding="7,1" Visibility="Collapsed">
+              <TextBlock Text="{DynamicResource s.conflictdlg.newer}" FontSize="11" FontWeight="SemiBold" Foreground="#1B2427"/>
+            </Border>
+            <TextBlock Text="{DynamicResource s.conflictdlg.incoming}" Style="{StaticResource Text.Label}" Margin="0"/>
+          </DockPanel>
+          <TextBlock x:Name="IncomingSize" FontSize="18" FontWeight="SemiBold" Margin="0,6,0,0"/>
+          <TextBlock x:Name="IncomingDate" Style="{StaticResource Text.Muted}" FontSize="12"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+    <TextBlock x:Name="SameNote" Text="{DynamicResource s.conflictdlg.same}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="0,-6,0,12" Visibility="Collapsed"/>
+
+    <!-- Choices -->
+    <Button x:Name="OverwriteButton" Style="{StaticResource Choice}" Click="OnOverwrite">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="&#xE72C;" FontFamily="{StaticResource Font.Icons}" FontSize="18" Foreground="{DynamicResource Brush.Warning}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+        <StackPanel>
+          <TextBlock Text="{DynamicResource s.conflictdlg.overwrite}" FontWeight="SemiBold"/>
+          <TextBlock Text="{DynamicResource s.conflictdlg.overwriteHint}" Style="{StaticResource Text.Muted}" FontSize="12"/>
+        </StackPanel>
+      </DockPanel>
+    </Button>
+    <Button x:Name="KeepBothButton" Style="{StaticResource Choice}" Click="OnKeepBoth">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="&#xE8C8;" FontFamily="{StaticResource Font.Icons}" FontSize="18" Foreground="{DynamicResource Brush.Accent}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+        <StackPanel>
+          <TextBlock Text="{DynamicResource s.conflictdlg.keepBoth}" FontWeight="SemiBold"/>
+          <TextBlock x:Name="KeepBothHint" Style="{StaticResource Text.Muted}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+      </DockPanel>
+    </Button>
+    <Button x:Name="SkipButton" Style="{StaticResource Choice}" Click="OnSkip">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="&#xE8D8;" FontFamily="{StaticResource Font.Icons}" FontSize="18" Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+        <StackPanel>
+          <TextBlock Text="{DynamicResource s.conflictdlg.skip}" FontWeight="SemiBold"/>
+          <TextBlock Text="{DynamicResource s.conflictdlg.skipHint}" Style="{StaticResource Text.Muted}" FontSize="12"/>
+        </StackPanel>
+      </DockPanel>
+    </Button>
+
+    <!-- Footer -->
+    <DockPanel Margin="0,6,0,0">
+      <Button DockPanel.Dock="Right" Style="{StaticResource Button.Subtle}" Content="{DynamicResource s.conflictdlg.stop}" Click="OnStop" IsCancel="True"
+              Foreground="{DynamicResource Brush.Danger}"/>
+      <CheckBox x:Name="ApplyAll" VerticalAlignment="Center"/>
+    </DockPanel>
+  </StackPanel>
+</Window>

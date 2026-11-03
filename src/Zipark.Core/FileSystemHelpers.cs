@@ -9,7 +9,27 @@ public enum ConflictPolicy
     Rename = 0,
     Skip,
     Overwrite,
+    /// <summary>Ask the user for each conflict (falls back to <see cref="Rename"/> when nobody can be asked).</summary>
+    Ask,
 }
+
+public enum ConflictChoice { Skip, Overwrite, Rename, Cancel }
+
+/// <summary>One "a file with this name already exists" question, as shown to the user.</summary>
+public sealed record ConflictInfo
+{
+    public required string TargetPath { get; init; }
+    public long ExistingSize { get; init; }
+    public DateTime ExistingModified { get; init; }
+    public long IncomingSize { get; init; }
+    public DateTime IncomingModified { get; init; }
+    /// <summary>File name the "keep both" choice would use, e.g. "index (2).html".</summary>
+    public required string RenameTo { get; init; }
+    /// <summary>Conflicts still to come after this one (for "apply to all").</summary>
+    public int Remaining { get; init; }
+}
+
+public sealed record ConflictDecision(ConflictChoice Choice, bool ApplyToAll);
 
 public static class ConflictResolver
 {

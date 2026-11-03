@@ -20,6 +20,20 @@ footer{margin-top:48px;color:var(--muted);font-size:13px;border-top:1px solid va
 <p>이 문서는 <a href="https://keepachangelog.com/ko/1.1.0/">Keep a Changelog</a> 형식을 따르고, 버전 번호는 <a href="https://semver.org/lang/ko/">유의적 버전(SemVer)</a>을 따릅니다.</p>
 <p>개발자: <strong>GPT PARK</strong> · 유튜브 <a href="https://www.youtube.com/@AIFACT-GPTPARK">https://www.youtube.com/@AIFACT-GPTPARK</a> · 공식 사이트 <a href="https://gptparkai.com/">https://gptparkai.com/</a></p>
 <hr>
+<h2>[1.0.3] — 2026-11-03</h2>
+<h3>추가</h3>
+<ul>
+<li><strong>같은 이름의 파일 확인 창</strong>: 압축을 풀 때 같은 이름의 파일이 있으면 어떻게 할지 묻습니다.</li>
+<ul>
+<li>지금 있는 파일과 압축 파일 안의 파일을 크기·수정 시각으로 나란히 비교하고, 더 최신 쪽 표시와 "같은 파일일 가능성" 안내를 보여 줍니다.</li>
+<li><strong>덮어쓰기 / 둘 다 유지 / 건너뛰기</strong> 중 하나를 누르면 바로 진행합니다. 기본 선택은 데이터를 잃지 않는 "둘 다 유지"입니다.</li>
+<li><strong>남은 충돌 N개에도 같은 선택 적용</strong>과 <strong>압축 풀기 중지</strong>를 제공합니다.</li>
+<li>작업 프로세스(Zipark.Worker)가 질문을 보내고 답을 받아 이어 갑니다. 여러 작업이 동시에 물어도 한 번에 하나씩 보여 줍니다.</li>
+<li>우클릭 메뉴로 풀 때도 앱 창 없이 이 확인 창만 뜹니다.</li>
+</ul>
+<li>충돌 처리 방식에 <strong>매번 묻기</strong>를 추가하고 기본값으로 정했습니다. 이전 버전에서 자동 저장된 기본값("둘 다 유지")은 한 번만 "매번 묻기"로 옮기고, 직접 고른 설정은 그대로 둡니다.</li>
+</ul>
+<hr>
 <h2>[1.0.2] — 2026-11-03</h2>
 <h3>변경</h3>
 <ul>

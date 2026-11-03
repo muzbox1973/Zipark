@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using Zipark.Core;
 using Zipark.Crypto;
 using Zipark.Desktop.Views;
 using Microsoft.Win32;
@@ -48,6 +49,37 @@ public static class Dialogs
         (Owner is { } o
             ? MessageBox.Show(o, message, title ?? "Zipark", MessageBoxButton.YesNo, MessageBoxImage.Question)
             : MessageBox.Show(message, title ?? "Zipark", MessageBoxButton.YesNo, MessageBoxImage.Question)) == MessageBoxResult.Yes;
+
+    private static readonly SemaphoreSlim ConflictGate = new(1, 1);
+
+    /// <summary>
+    /// Asks what to do with a file that already exists. Questions from parallel jobs are shown one at a time;
+    /// closing the dialog stops the extraction.
+    /// </summary>
+    public static async Task<ConflictDecision> AskConflictAsync(ConflictInfo info)
+    {
+        await ConflictGate.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            return await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                var owner = Owner;
+                var dlg = new ConflictDialog(info) { Owner = owner };
+                if (owner is null)
+                {
+                    // Started from the Explorer context menu: no app window, show it in front.
+                    dlg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                    dlg.ShowInTaskbar = true;
+                    dlg.Topmost = true;
+                }
+                return dlg.ShowDialog() == true ? dlg.Decision : new ConflictDecision(ConflictChoice.Cancel, false);
+            });
+        }
+        finally
+        {
+            ConflictGate.Release();
+        }
+    }
 
     /// <summary>Asks for a password; returns null when the user cancels.</summary>
     public static SecretPassword? AskPassword(string archiveName, bool retry)

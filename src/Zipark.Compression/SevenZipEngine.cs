@@ -313,6 +313,8 @@ public sealed class SevenZipEngine : IArchiveEngine
         var files = new List<string>();
         var strip = o.StripPrefix?.Replace('/', '\\').Trim('\\');
 
+        // Plan first so the user can be told how many conflicts remain ("apply to all").
+        var plan = new List<(string Full, bool IsDir, string Target)>();
         foreach (var (full, isDir) in WalkNoReparse(staging, blocked))
         {
             ct.ThrowIfCancellationRequested();
@@ -347,22 +349,45 @@ public sealed class SevenZipEngine : IArchiveEngine
                 continue;
             }
 
+            plan.Add((full, isDir, target));
+        }
+
+        int remaining = plan.Count(p => !p.IsDir && (File.Exists(p.Target) || Directory.Exists(p.Target)));
+        ConflictChoice? remembered = null; // "apply to all" answer
+        foreach (var (full, isDir, planned) in plan)
+        {
+            ct.ThrowIfCancellationRequested();
+            var target = planned;
             if (isDir)
             {
                 Directory.CreateDirectory(target);
                 continue;
             }
-            Directory.CreateDirectory(parent);
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            bool overwrite = false;
             if (File.Exists(target) || Directory.Exists(target))
             {
-                switch (o.Conflict)
+                remaining--;
+                var choice = o.Conflict switch
                 {
-                    case ConflictPolicy.Skip:
+                    ConflictPolicy.Skip => ConflictChoice.Skip,
+                    ConflictPolicy.Overwrite => ConflictChoice.Overwrite,
+                    ConflictPolicy.Ask when remembered is { } r => r,
+                    ConflictPolicy.Ask when o.ConflictPrompt is not null => AskUser(o.ConflictPrompt, full, target, Math.Max(0, remaining), ref remembered),
+                    _ => ConflictChoice.Rename,
+                };
+                if (choice == ConflictChoice.Cancel)
+                    throw new OperationCanceledException("Extraction stopped at a file conflict.");
+                if (choice == ConflictChoice.Overwrite && Directory.Exists(target)) choice = ConflictChoice.Rename; // never replace a folder with a file
+                switch (choice)
+                {
+                    case ConflictChoice.Skip:
                         skipped++;
                         continue;
-                    case ConflictPolicy.Overwrite when File.Exists(target):
+                    case ConflictChoice.Overwrite:
                         if ((File.GetAttributes(target) & FileAttributes.ReadOnly) != 0)
                             File.SetAttributes(target, File.GetAttributes(target) & ~FileAttributes.ReadOnly);
+                        overwrite = true;
                         break;
                     default:
                         target = ConflictResolver.GetUniquePath(target);
@@ -370,11 +395,29 @@ public sealed class SevenZipEngine : IArchiveEngine
                         break;
                 }
             }
-            File.Move(full, target, overwrite: o.Conflict == ConflictPolicy.Overwrite);
+            File.Move(full, target, overwrite);
             files.Add(target);
             written++;
         }
         return new ExtractResult(dest, written, skipped, renamed, blocked, files);
+    }
+
+    private static ConflictChoice AskUser(Func<ConflictInfo, ConflictDecision> prompt, string incoming, string target, int remaining, ref ConflictChoice? remembered)
+    {
+        var existing = new FileInfo(target);
+        var inc = new FileInfo(incoming);
+        var decision = prompt(new ConflictInfo
+        {
+            TargetPath = target,
+            ExistingSize = existing.Exists ? existing.Length : 0,
+            ExistingModified = existing.Exists ? existing.LastWriteTime : Directory.GetLastWriteTime(target),
+            IncomingSize = inc.Length,
+            IncomingModified = inc.LastWriteTime,
+            RenameTo = Path.GetFileName(ConflictResolver.GetUniquePath(target)),
+            Remaining = remaining,
+        });
+        if (decision.ApplyToAll && decision.Choice != ConflictChoice.Cancel) remembered = decision.Choice;
+        return decision.Choice;
     }
 
     /// <summary>Depth-first walk that never descends into reparse points; links found are removed (the link only).</summary>

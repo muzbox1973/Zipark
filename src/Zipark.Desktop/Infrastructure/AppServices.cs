@@ -81,7 +81,7 @@ public sealed class AppServices
         SevenZipLocator.OverridePath = string.IsNullOrWhiteSpace(settings.SevenZipPath) ? null : settings.SevenZipPath;
         RefreshEngine();
         UsingWorkerProcess = settings.UseWorkerProcess && WorkerProcessJobExecutor.IsAvailable();
-        IJobExecutor exec = UsingWorkerProcess ? new WorkerProcessJobExecutor() : new LazyInProcessExecutor(this);
+        IJobExecutor exec = UsingWorkerProcess ? new WorkerProcessJobExecutor { ConflictPrompt = Dialogs.AskConflictAsync } : new LazyInProcessExecutor(this);
         Jobs = new JobQueue(exec, settings.MaxParallelJobs);
         Drives = new VirtualDriveService(DriveOptions());
     }
@@ -161,6 +161,6 @@ public sealed class AppServices
     private sealed class LazyInProcessExecutor(AppServices s) : IJobExecutor
     {
         public Task<JobResult> ExecuteAsync(JobRequest request, Crypto.SecretPassword? password, IProgress<JobProgress>? progress, CancellationToken ct) =>
-            new InProcessJobExecutor(s.Engine).ExecuteAsync(request, password, progress, ct);
+            new InProcessJobExecutor(s.Engine, Dialogs.AskConflictAsync).ExecuteAsync(request, password, progress, ct);
     }
 }
