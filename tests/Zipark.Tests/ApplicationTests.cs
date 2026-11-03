@@ -186,6 +186,15 @@ public class ApplicationTests
     }
 
     [Fact]
+    public void ShellVerbs_BackgroundVerbsNeverNeedTheMainWindow()
+    {
+        foreach (var v in new[] { ShellVerbs.CompressZip, ShellVerbs.Compress7z, ShellVerbs.ExtractHere, ShellVerbs.ExtractToFolder, ShellVerbs.Test, ShellVerbs.Mount, ShellVerbs.Unmount })
+            Assert.True(ShellVerbs.RunsInBackground(v), v);
+        Assert.False(ShellVerbs.RunsInBackground(ShellVerbs.Open));
+        Assert.False(ShellVerbs.RunsInBackground(ShellVerbs.CompressAdvanced));
+    }
+
+    [Fact]
     public async Task DriveService_ReportsMissingWinFspSafely()
     {
         if (VirtualDriveService.WinFspInstalled) return; // covered by the end-to-end mount test instead

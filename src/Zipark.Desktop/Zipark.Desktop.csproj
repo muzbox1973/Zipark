@@ -2,12 +2,20 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
+    <!-- WinForms only for the notification-area icon (NotifyIcon); its namespaces are not imported globally. -->
+    <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>Zipark</AssemblyName>
     <RootNamespace>Zipark.Desktop</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\Zipark.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- WFO0003 targets WinForms apps; this is a WPF app whose DPI mode comes from app.manifest. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
   </PropertyGroup>
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Zipark.ico" />
     <Resource Include="Assets\logo.png" />

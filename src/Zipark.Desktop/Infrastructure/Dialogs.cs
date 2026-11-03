@@ -10,7 +10,8 @@ public static class Dialogs
 {
     public const string ArchiveFilter = "*.7z;*.zip;*.rar;*.tar;*.gz;*.tgz;*.bz2;*.xz;*.txz;*.zst;*.iso;*.cab;*.wim;*.001";
 
-    private static Window? Owner => System.Windows.Application.Current?.MainWindow;
+    /// <summary>The main window when it is on screen; dialogs opened from background (tray) work have no owner.</summary>
+    private static Window? Owner => System.Windows.Application.Current?.MainWindow is { IsVisible: true } w ? w : null;
 
     public static string? OpenArchive(string? title = null) =>
         OpenFiles(title ?? Loc.T("s.dlg.openArchive"), $"{Loc.T("s.dlg.archives")}|{ArchiveFilter}|{Loc.T("s.dlg.allFiles")}|*.*", false).FirstOrDefault();
@@ -44,14 +45,24 @@ public static class Dialogs
     }
 
     public static bool Confirm(string message, string? title = null) =>
-        MessageBox.Show(Owner!, message, title ?? "Zipark", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+        (Owner is { } o
+            ? MessageBox.Show(o, message, title ?? "Zipark", MessageBoxButton.YesNo, MessageBoxImage.Question)
+            : MessageBox.Show(message, title ?? "Zipark", MessageBoxButton.YesNo, MessageBoxImage.Question)) == MessageBoxResult.Yes;
 
     /// <summary>Asks for a password; returns null when the user cancels.</summary>
     public static SecretPassword? AskPassword(string archiveName, bool retry)
     {
         var d = System.Windows.Application.Current.Dispatcher;
         if (!d.CheckAccess()) return d.Invoke(() => AskPassword(archiveName, retry));
-        var dlg = new PasswordDialog(archiveName, retry) { Owner = Owner };
+        var owner = Owner;
+        var dlg = new PasswordDialog(archiveName, retry) { Owner = owner };
+        if (owner is null)
+        {
+            // Background work started from Explorer: no app window, so show the prompt in front, centred on screen.
+            dlg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            dlg.ShowInTaskbar = true;
+            dlg.Topmost = true;
+        }
         return dlg.ShowDialog() == true ? dlg.TakePassword() : null;
     }
 }

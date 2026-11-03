@@ -21,6 +21,13 @@ public static class ShellVerbs
     public const string Unmount = "unmount";
 
     public static readonly string[] All = [Open, CompressZip, Compress7z, CompressAdvanced, ExtractHere, ExtractToFolder, Test, Mount, Unmount];
+
+    /// <summary>
+    /// Verbs that run without showing the main window (progress in the tray, result as a Windows notification).
+    /// "open" and "compress-advanced" need the UI and always show it.
+    /// </summary>
+    public static bool RunsInBackground(string verb) =>
+        verb is CompressZip or Compress7z or ExtractHere or ExtractToFolder or Test or Mount or Unmount;
 }
 
 /// <summary>

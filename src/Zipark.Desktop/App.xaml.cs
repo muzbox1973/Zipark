@@ -14,6 +14,7 @@ public partial class App : System.Windows.Application
     private const string InstanceId = "Desktop";
     private SingleInstance? _instance;
     private ShellCommandHandler? _shell;
+    private TrayController? _tray;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -91,16 +92,39 @@ public partial class App : System.Windows.Application
         var vm = new MainViewModel();
         var window = new MainWindow(vm);
         MainWindow = window;
-        window.Show();
-
         _shell = new ShellCommandHandler(vm);
+
+        // Context-menu work (compress, extract, test, mount, unmount) runs without the main window:
+        // progress lives in the tray icon and results arrive as Windows notifications.
+        bool background = IsBackgroundRequest(e.Args);
+        _tray = new TrayController(background, () => _shell.Pending);
+        _tray.OpenRequested += () => ShowMainWindow(window);
+        _tray.ExitRequested += () => Shutdown(0);
+        if (background) ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        else window.Show();
+
         _instance.ArgumentsReceived += args => Dispatcher.BeginInvoke(() =>
         {
-            window.BringToFront();
+            if (!IsBackgroundRequest(args)) ShowMainWindow(window);
             if (!args.Contains("--activate")) _shell.Submit(args);
         });
         if (e.Args.Length > 0) _shell.Submit(e.Args);
-        Log.Info($"started; engine={AppServices.Current.EnginePath ?? "missing"} worker={AppServices.Current.UsingWorkerProcess}");
+        Log.Info($"started; background={background} engine={AppServices.Current.EnginePath ?? "missing"} worker={AppServices.Current.UsingWorkerProcess}");
+    }
+
+    private static bool IsBackgroundRequest(string[] args) =>
+        ShellInvocation.Parse(args) is { } inv && ShellVerbs.RunsInBackground(inv.Verb);
+
+    /// <summary>Shows the main window (first time: leaves background mode, closing it then exits the app).</summary>
+    private void ShowMainWindow(MainWindow window)
+    {
+        if (!window.IsVisible)
+        {
+            window.Show();
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
+            _tray?.LeaveBackground();
+        }
+        window.BringToFront();
     }
 
     private void OnUnhandled(object sender, DispatcherUnhandledExceptionEventArgs e)
@@ -129,6 +153,7 @@ public partial class App : System.Windows.Application
         {
             // services were never created (secondary instance)
         }
+        _tray?.Dispose();
         ArchiveBrowserViewModel.CleanupPreviews();
         _instance?.Dispose();
         base.OnExit(e);

@@ -17,13 +17,18 @@ public sealed class ShellCommandHandler
     private readonly List<ShellInvocation> _pending = [];
     private readonly object _gate = new();
     private System.Threading.Timer? _timer;
+    private int _inFlight;
 
     public ShellCommandHandler(MainViewModel main) => _main = main;
+
+    /// <summary>Context-menu requests received but not yet turned into queued jobs (password prompts, listing).</summary>
+    public int Pending => Volatile.Read(ref _inFlight);
 
     public void Submit(string[] args)
     {
         var inv = ShellInvocation.Parse(args);
         if (inv is null || inv.Paths.Count == 0) return;
+        Interlocked.Increment(ref _inFlight);
         lock (_gate)
         {
             _pending.Add(inv);
@@ -43,7 +48,18 @@ public sealed class ShellCommandHandler
         foreach (var group in batch.GroupBy(b => b.Verb))
         {
             var paths = group.SelectMany(g => g.Paths).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-            Ui.OnUi(() => _ = RunAsync(group.Key, paths));
+            var count = group.Count();
+            Ui.OnUi(async () =>
+            {
+                try
+                {
+                    await RunAsync(group.Key, paths);
+                }
+                finally
+                {
+                    Interlocked.Add(ref _inFlight, -count);
+                }
+            });
         }
     }
 
@@ -68,26 +84,24 @@ public sealed class ShellCommandHandler
                 case ShellVerbs.ExtractToFolder:
                     foreach (var p in UniqueArchives(paths))
                         await QuickExtractAsync(p, verb == ShellVerbs.ExtractToFolder);
-                    _main.Navigate("jobs", null);
                     break;
                 case ShellVerbs.Test:
-                    _main.Navigate("verify", paths.ToArray());
-                    _main.Verify.TestCommand.Execute(null);
+                    foreach (var p in UniqueArchives(paths))
+                        await QuickTestAsync(p);
                     break;
                 case ShellVerbs.Mount:
-                    _main.Navigate("drives", paths[0]);
+                    await _main.Drives.MountAsync(paths[0]);
                     break;
                 case ShellVerbs.Unmount:
                     var drive = s.Drives.Find(paths[0].TrimEnd('\\'));
                     if (drive is null)
                     {
                         s.Notify.Warn(Loc.T("s.notice.notOurDrive"), paths[0]);
-                        _main.Navigate("drives", null);
                     }
                     else
                     {
                         await s.Drives.UnmountAsync(drive);
-                        s.Notify.Info(Loc.T("s.notice.unmounted"), drive.SourceName);
+                        s.Notify.Success(Loc.T("s.notice.unmounted"), drive.SourceName);
                     }
                     break;
             }
@@ -120,7 +134,32 @@ public sealed class ShellCommandHandler
             VerifyAfter = s.Settings.VerifyAfterCompress,
         });
         JobsViewModel.ReportWhenDone(job, output);
-        _main.Navigate("jobs", null);
+    }
+
+    /// <summary>Lists the archive and asks for a password only if it is needed. False when the user cancelled.</summary>
+    private static async Task<(bool Ok, SecretPassword? Password)> PasswordFor(string archive)
+    {
+        var s = AppServices.Current;
+        var name = Path.GetFileName(archive);
+        var (info, pw) = await s.Engine.OpenAsync(archive, retry => Task.FromResult(Dialogs.AskPassword(name, retry)));
+        if (pw is null && info.HasEncryptedEntries)
+        {
+            pw = Dialogs.AskPassword(name, false);
+            if (pw is null) return (false, null);
+        }
+        return (true, pw);
+    }
+
+    private static async Task QuickTestAsync(string archive)
+    {
+        var s = AppServices.Current;
+        var (ok, pw) = await PasswordFor(archive);
+        if (!ok) return;
+        using (pw)
+        {
+            var job = s.Jobs.Enqueue(new JobRequest { Kind = JobKind.Test, Sources = [archive] }, pw);
+            JobsViewModel.ReportWhenDone(job, null);
+        }
     }
 
     private static async Task QuickExtractAsync(string archive, bool toFolder)
@@ -129,14 +168,9 @@ public sealed class ShellCommandHandler
         SecretPassword? pw = null;
         try
         {
-            var name = Path.GetFileName(archive);
-            var (info, listPw) = await s.Engine.OpenAsync(archive, retry => Task.FromResult(Dialogs.AskPassword(name, retry)));
+            var (ok, listPw) = await PasswordFor(archive);
             pw = listPw;
-            if (pw is null && info.HasEncryptedEntries)
-            {
-                pw = Dialogs.AskPassword(name, false);
-                if (pw is null) return;
-            }
+            if (!ok) return;
             var dest = ExtractViewModel.DestinationFor(archive, null, toFolder);
             var limits = s.Settings.ToBombLimits();
             var job = s.Jobs.Enqueue(new JobRequest

@@ -358,6 +358,10 @@
   <sys:String x:Key="s.theme.Dark" xml:space="preserve">다크</sys:String>
   <sys:String x:Key="s.theme.Light" xml:space="preserve">라이트</sys:String>
   <sys:String x:Key="s.theme.System" xml:space="preserve">Windows 설정 따르기</sys:String>
+  <sys:String x:Key="s.tray.drives" xml:space="preserve">Zipark — 가상 드라이브 {0}개 탑재 중</sys:String>
+  <sys:String x:Key="s.tray.exit" xml:space="preserve">종료</sys:String>
+  <sys:String x:Key="s.tray.open" xml:space="preserve">Zipark 열기</sys:String>
+  <sys:String x:Key="s.tray.working" xml:space="preserve">Zipark — 작업 {0}개 진행 중 ({1:F0}%)</sys:String>
   <sys:String x:Key="s.verify.allMatch" xml:space="preserve">{0}개 파일이 모두 일치합니다</sys:String>
   <sys:String x:Key="s.verify.checkManifest" xml:space="preserve">SHA-256 목록으로 대조</sys:String>
   <sys:String x:Key="s.verify.compute" xml:space="preserve">계산</sys:String>

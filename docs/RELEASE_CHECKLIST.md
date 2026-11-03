@@ -86,3 +86,13 @@
 - `dotnet test Zipark.sln -c Release` → **78 / 78 통과**.
 - `Zipark-1.0.1-x64.msi` (50.5 MB, SHA-256 `b58f8253…eda95afa`), `Zipark-1.0.1-x64-portable.zip` (61.7 MB, SHA-256 `2d909d75…855b4d9a`).
 - 사용자가 1.0.0 MSI를 직접 설치한 것을 확인(설치된 앱: Zipark 1.0.0.0, 게시자 GPT PARK). 설치 시 우클릭 메뉴 등록 커스텀 액션이 동작했음을 레지스트리로 확인 — 기존 "MSI 설치 미검증" 항목 중 설치·셸 등록 부분은 확인됨(제거는 미검증).
+
+### 2026-11-03 — 1.0.2: 우클릭 메뉴 작업을 창 없이 실행
+- 실제 실행 검증(탐색기와 같은 방식으로 `Zipark.exe --verb … "경로"` 실행, 해당 프로세스의 보이는 창을 100 ms 간격으로 수집):
+  - `compress-zip`, `extract-folder`, `test`, `compress-7z`: **보이는 창 0개**, 결과 정상(`docs.zip`, `docs (2)` 41개 파일, `sub.7z`), 작업 후 약 6초 안에 **스스로 종료**.
+  - 암호화 ZIP의 `extract-here`: 보이는 창은 **암호 입력 창 하나뿐**.
+  - 이미 열려 최소화된 Zipark 창에 `compress-zip`을 전달: 창이 **계속 최소화 상태**, 압축 완료.
+  - 완료 알림 호출을 로그로 확인(`tray notification shown: Success`). 알림의 실제 화면 표시는 육안으로 확인하지 않음.
+- `dotnet test Zipark.sln -c Release` → **79 / 79 통과** (`ShellVerbs_BackgroundVerbsNeverNeedTheMainWindow` 추가).
+- 패키지 크기 증가: 알림 영역 아이콘(WinForms `NotifyIcon`) 런타임이 포함되어 MSI 50.5 → 57.6 MB, zip 61.7 → 69.8 MB.
+- `Zipark-1.0.2-x64.msi` (SHA-256 `695456a3…5e77983d`), `Zipark-1.0.2-x64-portable.zip` (SHA-256 `c0efe736…6daa246`).
