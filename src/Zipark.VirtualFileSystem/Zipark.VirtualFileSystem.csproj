@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Zipark.VirtualFileSystem</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Zipark.Core\Zipark.Core.csproj" />
+    <ProjectReference Include="..\Zipark.Crypto\Zipark.Crypto.csproj" />
+    <ProjectReference Include="..\Zipark.Cache\Zipark.Cache.csproj" />
+    <ProjectReference Include="..\Zipark.Compression\Zipark.Compression.csproj" />
+  </ItemGroup>
+</Project>

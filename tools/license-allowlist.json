@@ -1,0 +1,27 @@
+{
+  "comment": "NuGet packages approved for Zipark (id -> license). Adding a dependency requires adding it here after license review.",
+  "packages": {
+    "winfsp.net": "GPL-3.0 WITH WinFsp FLOSS exception",
+    "System.IO.Hashing": "MIT",
+    "Microsoft.Win32.Registry": "MIT",
+    "System.IO.FileSystem.AccessControl": "MIT",
+    "System.Security.AccessControl": "MIT",
+    "System.Security.Principal.Windows": "MIT",
+    "Microsoft.NET.Test.Sdk": "MIT (test only)",
+    "Microsoft.CodeCoverage": "MIT (test only)",
+    "Microsoft.TestPlatform.ObjectModel": "MIT (test only)",
+    "Microsoft.TestPlatform.TestHost": "MIT (test only)",
+    "xunit": "Apache-2.0 (test only)",
+    "xunit.abstractions": "Apache-2.0 (test only)",
+    "xunit.analyzers": "Apache-2.0 (test only)",
+    "xunit.assert": "Apache-2.0 (test only)",
+    "xunit.core": "Apache-2.0 (test only)",
+    "xunit.extensibility.core": "Apache-2.0 (test only)",
+    "xunit.extensibility.execution": "Apache-2.0 (test only)",
+    "xunit.runner.visualstudio": "Apache-2.0 (test only)",
+    "System.Reflection.Metadata": "MIT (test only)",
+    "System.Collections.Immutable": "MIT (test only)",
+    "Newtonsoft.Json": "MIT (test only)",
+    "NETStandard.Library": "MIT"
+  }
+}

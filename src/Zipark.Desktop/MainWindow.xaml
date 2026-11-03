@@ -1,0 +1,147 @@
+<Window x:Class="Zipark.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Zipark.Desktop.ViewModels"
+        xmlns:v="clr-namespace:Zipark.Desktop.Views"
+        xmlns:infra="clr-namespace:Zipark.Desktop.Infrastructure"
+        Title="Zipark" Width="1180" Height="760" MinWidth="860" MinHeight="560"
+        WindowStartupLocation="CenterScreen" Icon="/Zipark;component/Assets/Zipark.ico"
+        Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
+        FontFamily="{StaticResource Font.UI}" FontSize="14" AllowDrop="True"
+        TextOptions.TextFormattingMode="Display" UseLayoutRounding="True">
+
+  <Window.InputBindings>
+    <KeyBinding Key="O" Modifiers="Control" Command="{Binding Home.OpenCommand}"/>
+    <KeyBinding Key="N" Modifiers="Control" Command="{Binding GoCommand}" CommandParameter="compress"/>
+    <KeyBinding Key="E" Modifiers="Control" Command="{Binding GoCommand}" CommandParameter="extract"/>
+    <KeyBinding Key="M" Modifiers="Control" Command="{Binding GoCommand}" CommandParameter="drives"/>
+    <KeyBinding Key="J" Modifiers="Control" Command="{Binding GoCommand}" CommandParameter="jobs"/>
+    <KeyBinding Key="T" Modifiers="Control" Command="{Binding GoCommand}" CommandParameter="verify"/>
+    <KeyBinding Key="OemComma" Modifiers="Control" Command="{Binding GoCommand}" CommandParameter="settings"/>
+    <KeyBinding Key="H" Modifiers="Control" Command="{Binding GoCommand}" CommandParameter="home"/>
+  </Window.InputBindings>
+
+  <Window.Resources>
+    <DataTemplate DataType="{x:Type vm:HomeViewModel}"><v:HomeView/></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:ExplorerViewModel}"><v:ExplorerView/></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:CompressViewModel}"><v:CompressView/></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:ExtractViewModel}"><v:ExtractView/></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:SplitViewModel}"><v:SplitView/></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:PasswordViewModel}"><v:PasswordView/></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:DrivesViewModel}"><v:DrivesView/></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:IsoViewModel}"><v:IsoView/></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:JobsViewModel}"><v:JobsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:VerifyViewModel}"><v:VerifyView/></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><v:SettingsView/></DataTemplate>
+    <infra:NoticeBrushConverter x:Key="NoticeBrush"/>
+    <infra:BoolToVisibilityConverter x:Key="Vis"/>
+    <infra:NullToVisibilityConverter x:Key="NullVis"/>
+  </Window.Resources>
+
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="224"/>
+      <ColumnDefinition/>
+    </Grid.ColumnDefinitions>
+
+    <!-- Navigation rail -->
+    <Border Background="{DynamicResource Brush.Sidebar}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,1,0">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="18,18,12,18">
+          <Image Source="/Zipark;component/Assets/logo.png" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality"/>
+          <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+            <TextBlock Text="Zipark" FontSize="17" FontWeight="SemiBold"/>
+            <TextBlock Text="{DynamicResource s.app.tagline}" FontSize="11" Foreground="{DynamicResource Brush.TextMuted}"/>
+          </StackPanel>
+        </StackPanel>
+
+        <Button DockPanel.Dock="Bottom" Command="{Binding GoCommand}" CommandParameter="settings" Margin="6,4,6,12"
+                HorizontalContentAlignment="Stretch" AutomationProperties.Name="{DynamicResource s.nav.settings}">
+          <Button.Style>
+            <Style TargetType="Button" BasedOn="{StaticResource Button.Subtle}">
+              <Setter Property="Padding" Value="10,8"/>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSettingsSelected}" Value="True">
+                  <Setter Property="Background" Value="{DynamicResource Brush.Hover}"/>
+                  <Setter Property="FontWeight" Value="SemiBold"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Button.Style>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="180">
+            <TextBlock Text="&#xE713;" FontFamily="{StaticResource Font.Icons}" FontSize="16" VerticalAlignment="Center"/>
+            <TextBlock Text="{DynamicResource s.nav.settings}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Button>
+
+        <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding NavSelected, Mode=TwoWay}" ItemContainerStyle="{StaticResource NavItem}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Navigation">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Glyph}" FontFamily="{StaticResource Font.Icons}" FontSize="16" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="12,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                <Border Grid.Column="2" Background="{DynamicResource Brush.Accent}" CornerRadius="8" Padding="6,0" MinWidth="18" Height="18">
+                  <Border.Style>
+                    <Style TargetType="Border">
+                      <Setter Property="Visibility" Value="Collapsed"/>
+                      <Style.Triggers>
+                        <MultiDataTrigger>
+                          <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding Key}" Value="jobs"/>
+                            <Condition Binding="{Binding DataContext.ActiveJobs, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource Vis}}" Value="Visible"/>
+                          </MultiDataTrigger.Conditions>
+                          <Setter Property="Visibility" Value="Visible"/>
+                        </MultiDataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </Border.Style>
+                  <TextBlock Text="{Binding DataContext.ActiveJobs, RelativeSource={RelativeSource AncestorType=ListBox}}" FontSize="11"
+                             Foreground="{DynamicResource Brush.AccentText}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
+
+    <!-- Page -->
+    <Grid Grid.Column="1">
+      <ContentControl Content="{Binding CurrentPage}" Focusable="False"/>
+
+      <!-- Notification bar -->
+      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="24,0,24,20" MaxWidth="760"
+              Background="{DynamicResource Brush.Surface}" BorderBrush="{Binding Notify.Current.Kind, Converter={StaticResource NoticeBrush}}"
+              BorderThickness="1,1,1,1" CornerRadius="10" Padding="14,10"
+              Visibility="{Binding Notify.Current, Converter={StaticResource NullVis}}">
+        <Border.Effect>
+          <DropShadowEffect BlurRadius="18" ShadowDepth="3" Opacity="0.18"/>
+        </Border.Effect>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Border Width="4" CornerRadius="2" Background="{Binding Notify.Current.Kind, Converter={StaticResource NoticeBrush}}" Margin="0,0,12,0"/>
+          <StackPanel Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Text="{Binding Notify.Current.Title}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding Notify.Current.Detail}" Style="{StaticResource Text.Muted}" FontSize="12" MaxHeight="80" TextTrimming="CharacterEllipsis"
+                       Visibility="{Binding Notify.Current.Detail, Converter={StaticResource Vis}}"/>
+          </StackPanel>
+          <Button Grid.Column="2" Content="{Binding Notify.Current.ActionLabel}" Command="{Binding NoticeActionCommand}" Margin="12,0,4,0"
+                  Visibility="{Binding Notify.Current.ActionLabel, Converter={StaticResource Vis}}"/>
+          <Button Grid.Column="3" Style="{StaticResource Button.Icon}" Content="&#xE711;" Command="{Binding DismissNoticeCommand}"
+                  ToolTip="{DynamicResource s.common.close}" AutomationProperties.Name="{DynamicResource s.common.close}"/>
+        </Grid>
+      </Border>
+    </Grid>
+  </Grid>
+</Window>

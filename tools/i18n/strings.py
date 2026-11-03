@@ -1,0 +1,514 @@
+"""Single source of truth for Zipark UI strings (Korean default, English).
+
+Run:  python tools/i18n/strings.py
+It regenerates src/Zipark.Desktop/Strings/{ko,en}.xaml and fails if a key used in the
+desktop sources is missing from this table (or if a language lacks a translation).
+"""
+import os
+import re
+import sys
+from xml.sax.saxutils import escape
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+DESKTOP = os.path.join(ROOT, "src", "Zipark.Desktop")
+
+S = {
+    # app / nav
+    "app.tagline": ("무료 · 오프라인 · 오픈소스", "Free · Offline · Open source"),
+    "nav.home": ("홈", "Home"),
+    "nav.explorer": ("파일 탐색기", "Archive explorer"),
+    "nav.compress": ("새 압축 만들기", "New archive"),
+    "nav.extract": ("압축 해제", "Extract"),
+    "nav.split": ("분할 압축", "Split & merge"),
+    "nav.password": ("암호 설정", "Password"),
+    "nav.drives": ("가상 드라이브 관리자", "Virtual drives"),
+    "nav.iso": ("ISO 탐색기", "ISO explorer"),
+    "nav.jobs": ("작업 큐", "Job queue"),
+    "nav.verify": ("파일 검사", "Verify"),
+    "nav.settings": ("환경설정", "Settings"),
+
+    # common
+    "common.ok": ("확인", "OK"),
+    "common.cancel": ("취소", "Cancel"),
+    "common.close": ("닫기", "Close"),
+    "common.browse": ("찾아보기…", "Browse…"),
+    "common.remove": ("제거", "Remove"),
+    "common.clear": ("모두 지우기", "Clear"),
+    "common.refresh": ("새로 고침", "Refresh"),
+    "common.loading": ("불러오는 중…", "Loading…"),
+    "common.on": ("켜기", "On"),
+    "common.off": ("끄기", "Off"),
+    "action.openFolder": ("폴더 열기", "Open folder"),
+    "action.openExplorer": ("탐색기에서 열기", "Open in Explorer"),
+
+    # dialogs
+    "dlg.openArchive": ("압축 파일 열기", "Open archive"),
+    "dlg.openIso": ("ISO 파일 열기", "Open ISO image"),
+    "dlg.archives": ("압축 파일", "Archives"),
+    "dlg.allFiles": ("모든 파일", "All files"),
+    "dlg.pickFolder": ("폴더 선택", "Choose folder"),
+    "dlg.extractTo": ("압축을 풀 폴더 선택", "Choose destination folder"),
+    "dlg.addFiles": ("파일 추가", "Add files"),
+    "dlg.addFolder": ("폴더 추가", "Add folders"),
+    "dlg.saveArchive": ("압축 파일 저장 위치", "Save archive as"),
+    "dlg.pickFile": ("파일 선택", "Choose file"),
+    "dlg.pickFirstPart": ("첫 번째 조각(.001) 또는 매니페스트 선택", "Choose the first part (.001) or manifest"),
+    "dlg.pickVolume": ("볼륨 파일 선택", "Choose a volume"),
+    "dlg.pickMount": ("탑재할 ZIP / 7Z / ISO 선택", "Choose ZIP / 7Z / ISO to mount"),
+
+    # home
+    "home.title": ("Zipark에 오신 것을 환영합니다", "Welcome to Zipark"),
+    "home.subtitle": ("압축, 해제, 검사, 그리고 압축 파일을 드라이브처럼 여는 무료 압축 프로그램입니다. 모든 작업은 이 PC 안에서만 처리됩니다.",
+                      "Compress, extract, verify and open archives as drives — free, and everything stays on this PC."),
+    "home.drop": ("파일이나 폴더를 여기에 끌어다 놓으세요", "Drop files or folders here"),
+    "home.dropHint": ("압축 파일 하나는 바로 열고, 그 밖의 항목은 새 압축으로 준비합니다.", "A single archive opens right away; anything else is prepared as a new archive."),
+    "home.new": ("새 압축", "New archive"),
+    "home.newHint": ("ZIP · 7Z · TAR", "ZIP · 7Z · TAR"),
+    "home.extract": ("압축 풀기", "Extract"),
+    "home.extractHint": ("여러 개 한 번에", "Many at once"),
+    "home.open": ("열기", "Open"),
+    "home.openHint": ("내부 탐색", "Browse inside"),
+    "home.mount": ("드라이브 탑재", "Mount drive"),
+    "home.mountHint": ("ZIP · 7Z · ISO", "ZIP · 7Z · ISO"),
+    "home.verify": ("검사", "Verify"),
+    "home.verifyHint": ("무결성 · 체크섬", "Integrity · checksums"),
+    "home.recent": ("최근 연 압축 파일", "Recent archives"),
+    "home.noRecent": ("아직 연 압축 파일이 없습니다.", "No archives opened yet."),
+    "home.status": ("상태", "Status"),
+    "home.engine": ("압축 엔진", "Compression engine"),
+    "home.engineOk": ("7-Zip {0} 사용 중 ({1})", "Using 7-Zip {0} ({1})"),
+    "home.engineMissing": ("7-Zip 엔진(7z.exe, 7z.dll)을 찾지 못했습니다. 설치 프로그램에 포함된 엔진을 복구하거나 7-Zip을 설치한 뒤 환경설정에서 경로를 지정하세요.",
+                           "The 7-Zip engine (7z.exe, 7z.dll) was not found. Repair the installation or install 7-Zip and set its path in Settings."),
+    "home.engineMissingTitle": ("압축 엔진이 없습니다", "Compression engine missing"),
+    "home.vfs": ("ZIP/7Z 가상 드라이브", "ZIP/7Z virtual drives"),
+    "home.winfspOk": ("WinFsp {0} 설치됨 — 사용 가능", "WinFsp {0} installed — available"),
+    "home.winfspMissing": ("WinFsp가 설치되어 있지 않아 ZIP/7Z 드라이브를 쓸 수 없습니다. (ISO 탑재는 가능)", "WinFsp is not installed, so ZIP/7Z drives are unavailable (ISO mounting still works)."),
+    "home.isolation": ("작업 격리", "Job isolation"),
+    "home.workerOn": ("각 작업은 별도 프로세스에서 실행됩니다.", "Each job runs in its own process."),
+    "home.workerOff": ("작업이 앱 안에서 실행됩니다.", "Jobs run inside the app process."),
+    "home.offline": ("계정·광고·인터넷 연결이 필요 없습니다. 파일은 외부로 전송되지 않습니다.", "No account, ads or internet needed. Your files never leave this PC."),
+
+    # explorer
+    "explorer.title": ("파일 탐색기", "Archive explorer"),
+    "explorer.subtitle": ("압축을 풀지 않고 내용을 둘러보고, 필요한 파일만 꺼냅니다. 더블클릭하면 해당 파일만 임시로 풀어 엽니다.",
+                          "Browse an archive without extracting it and take out only what you need. Double-click opens a single file."),
+    "explorer.open": ("압축 파일 열기", "Open archive"),
+    "explorer.extractSel": ("선택 항목 풀기", "Extract selected"),
+    "explorer.extractAll": ("모두 풀기", "Extract all"),
+    "explorer.test": ("검사", "Test"),
+    "explorer.mount": ("드라이브로 탑재", "Mount as drive"),
+    "explorer.up": ("상위 폴더", "Up one level"),
+    "explorer.search": ("이름 검색 (* ? 사용 가능)", "Search names (* and ? allowed)"),
+    "explorer.empty": ("열린 압축 파일이 없습니다", "No archive open"),
+    "explorer.emptyHint": ("압축 파일을 끌어다 놓거나 [압축 파일 열기]를 누르세요. (Ctrl+O)", "Drop an archive here or press Open archive (Ctrl+O)."),
+    "explorer.files": ("파일 {0}개", "{0} files"),
+    "explorer.solid": ("솔리드 블록 {0}개", "{0} solid blocks"),
+    "explorer.enc": ("암호화됨", "encrypted"),
+    "explorer.encNames": ("암호화됨(파일명 포함)", "encrypted incl. names"),
+    "explorer.volumes": ("볼륨 {0}개", "{0} volumes"),
+    "explorer.selected": ("{0}개 선택 · {1}", "{0} selected · {1}"),
+    "col.name": ("이름", "Name"),
+    "col.size": ("크기", "Size"),
+    "col.packed": ("압축 크기", "Packed"),
+    "col.modified": ("수정한 날짜", "Modified"),
+    "col.method": ("방식", "Method"),
+    "col.drive": ("드라이브", "Drive"),
+    "col.source": ("원본 압축 파일", "Source archive"),
+    "col.format": ("형식", "Format"),
+    "col.state": ("상태", "State"),
+    "col.encrypted": ("암호화", "Encrypted"),
+    "col.cache": ("캐시", "Cache"),
+    "col.result": ("결과", "Result"),
+
+    # compress
+    "compress.title": ("새 압축 만들기", "New archive"),
+    "compress.subtitle": ("원본 파일은 절대 변경하거나 삭제하지 않습니다. 작업이 끝나기 전에는 임시 파일에 쓰고, 성공했을 때만 최종 이름으로 바꿉니다.",
+                          "Source files are never modified or deleted. Output is written to a temporary file and renamed only on success."),
+    "compress.sources": ("압축할 항목", "Items to compress"),
+    "compress.addFiles": ("파일 추가", "Add files"),
+    "compress.addFolder": ("폴더 추가", "Add folder"),
+    "compress.noSources": ("파일·폴더를 추가하거나 끌어다 놓으세요.", "Add or drop files and folders."),
+    "compress.sourceCount": ("항목 {0}개", "{0} item(s)"),
+    "compress.output": ("저장 위치", "Save as"),
+    "compress.noOutput": ("저장 위치를 지정하세요.", "Choose where to save the archive."),
+    "compress.format": ("형식", "Format"),
+    "compress.level": ("압축률", "Compression level"),
+    "compress.threads": ("CPU 스레드", "CPU threads"),
+    "compress.method": ("압축 방식", "Method"),
+    "compress.dictionary": ("사전 크기", "Dictionary"),
+    "compress.solid": ("솔리드 압축", "Solid"),
+    "compress.each": ("항목마다 따로 압축 (폴더별 개별 압축)", "Compress each item separately"),
+    "compress.verify": ("압축 후 무결성 검사", "Test the archive after creating it"),
+    "compress.split": ("분할 압축 (볼륨 크기)", "Split into volumes"),
+    "compress.encrypt": ("암호 설정 (AES-256)", "Encrypt with password (AES-256)"),
+    "compress.encNames": ("파일 이름도 암호화 (7Z 권장)", "Also encrypt file names (recommended for 7Z)"),
+    "compress.zipMethod": ("ZIP 암호화 방식", "ZIP encryption"),
+    "compress.presetPw": ("암호 설정 화면에서 넘겨받은 암호를 사용합니다.", "Using the password handed over from the Password screen."),
+    "compress.start": ("압축 시작", "Start"),
+
+    "level.Store": ("저장 (압축 안 함)", "Store (no compression)"),
+    "level.Fastest": ("가장 빠름", "Fastest"),
+    "level.Fast": ("빠름", "Fast"),
+    "level.Normal": ("보통", "Normal"),
+    "level.Maximum": ("높음", "Maximum"),
+    "level.Ultra": ("최고", "Ultra"),
+
+    # extract
+    "extract.title": ("압축 해제", "Extract"),
+    "extract.subtitle": ("여러 압축 파일을 한 번에 풀 수 있습니다. 분할 압축은 아무 볼륨이나 추가하면 첫 번째 볼륨부터 자동으로 연결합니다.",
+                         "Extract many archives at once. For split archives add any volume — the set is joined from the first volume automatically."),
+    "extract.archives": ("압축 파일", "Archives"),
+    "extract.add": ("압축 파일 추가", "Add archives"),
+    "extract.batchHint": ("각 압축 파일은 작업 큐에서 차례로 처리됩니다.", "Each archive becomes a job in the queue."),
+    "extract.destination": ("풀 위치", "Destination"),
+    "extract.sameFolder": ("압축 파일이 있는 폴더", "The archive's folder"),
+    "extract.customFolder": ("지정한 폴더", "This folder"),
+    "extract.subfolder": ("압축 파일 이름으로 새 폴더를 만들어 풀기", "Create a new folder named after each archive"),
+    "extract.conflict": ("같은 이름의 파일이 있을 때", "When a file already exists"),
+    "extract.openAfter": ("완료 후 폴더 열기", "Open the folder when done"),
+    "extract.password": ("암호 (필요한 경우)", "Password (if needed)"),
+    "extract.passwordHint": ("비워 두면 암호가 필요할 때 물어봅니다. 암호는 저장되지 않습니다.", "Leave empty to be asked when needed. Passwords are never stored."),
+    "extract.safety": ("안전 장치: 경로 탐색(Zip Slip)·절대 경로·심볼릭 링크 항목은 풀지 않고, 압축 폭탄(비정상적인 압축률·크기)과 디스크 공간 부족은 미리 차단합니다. 기존 파일은 기본적으로 덮어쓰지 않고 새 이름으로 저장합니다.",
+                       "Safety: path-traversal (Zip Slip), absolute-path and symlink entries are never written; archive bombs and low disk space are blocked up front. Existing files are kept and new copies get a new name by default."),
+    "extract.start": ("압축 풀기", "Extract"),
+    "extract.volumes": ("분할 볼륨 {0}개 확인됨", "{0} volumes found"),
+    "extract.missing": ("누락된 볼륨: {0}", "Missing volumes: {0}"),
+    "conflict.Rename": ("둘 다 유지 (새 이름으로 저장)", "Keep both (rename new file)"),
+    "conflict.Skip": ("건너뛰기", "Skip"),
+    "conflict.Overwrite": ("덮어쓰기", "Overwrite"),
+
+    # split
+    "split.title": ("분할 압축 · 파일 분할/병합", "Split archives · split & merge files"),
+    "split.subtitle": ("표준 7Z/ZIP 분할 볼륨(.001, .002 …)을 만들거나, 압축하지 않고 파일을 조각내고 다시 합칩니다. 조각마다 SHA-256을 기록해 손상·누락을 찾아냅니다.",
+                       "Create standard 7Z/ZIP split volumes (.001, .002 …) or cut files into parts without compression. Each part is SHA-256 hashed to catch damage or gaps."),
+    "split.size": ("조각 크기", "Part size"),
+    "split.custom": ("사용자 지정…", "Custom…"),
+    "split.customHint": ("예: 250MB, 3.5GB", "e.g. 250MB, 3.5GB"),
+    "split.invalidSize": ("조각 크기가 올바르지 않습니다 (최소 64KB).", "Invalid part size (minimum 64 KB)."),
+    "split.tabArchive": ("분할 압축", "Split archive"),
+    "split.tabRaw": ("파일 분할", "Split a file"),
+    "split.tabMerge": ("파일 병합", "Merge parts"),
+    "split.tabInspect": ("볼륨 점검", "Check volumes"),
+    "split.archiveHint": ("항목을 고르고 다음을 누르면 [새 압축 만들기]에서 분할 크기가 설정된 상태로 이어집니다 (암호·압축률도 설정 가능).",
+                          "Pick items and press Next — New archive opens with the volume size preset (password and level can be set there)."),
+    "split.next": ("다음: 압축 설정", "Next: archive options"),
+    "split.rawHint": ("압축 없이 그대로 자릅니다. 결과: 파일명.001, .002 … 와 .fxsplit.json 매니페스트.", "Cuts the file as-is: name.001, .002 … plus a .fxsplit.json manifest."),
+    "split.file": ("분할할 파일", "File to split"),
+    "split.outFolder": ("저장 폴더 (비우면 같은 폴더)", "Output folder (empty = same folder)"),
+    "split.doSplit": ("분할", "Split"),
+    "split.mergeHint": ("첫 조각(.001)이나 매니페스트를 고르세요. 매니페스트가 있으면 각 조각과 전체 파일의 SHA-256을 확인합니다.",
+                        "Pick the first part (.001) or the manifest. With a manifest every part and the whole file are SHA-256 verified."),
+    "split.doMerge": ("병합", "Merge"),
+    "split.parts": ("분할 조각", "Split parts"),
+    "split.inspectHint": ("아무 볼륨이나 고르면 같은 세트의 모든 볼륨을 찾고 빠진 볼륨을 알려 줍니다.", "Pick any volume to find its whole set and list missing volumes."),
+    "split.pickVolume": ("볼륨 선택…", "Choose volume…"),
+    "split.inspectSummary": ("{0} · 볼륨 {1}개 · {2} · {3}", "{0} · {1} volumes · {2} · {3}"),
+    "split.complete": ("모든 볼륨 있음", "complete"),
+    "split.incomplete": ("{0}개 누락", "{0} missing"),
+    "split.found": ("찾은 볼륨", "Found"),
+    "split.missingList": ("누락된 볼륨", "Missing"),
+    "scheme.Single": ("단일 파일", "Single file"),
+    "scheme.Numbered": ("번호 볼륨 (.001)", "Numbered volumes (.001)"),
+    "scheme.ZipSpanned": ("ZIP 스팬 (.z01 … .zip)", "Spanned ZIP (.z01 … .zip)"),
+    "scheme.RarParts": ("RAR (.partN.rar)", "RAR (.partN.rar)"),
+    "scheme.RarOld": ("RAR (.rar, .r00 …)", "RAR (.rar, .r00 …)"),
+
+    # password
+    "pw.password": ("암호", "Password"),
+    "pw.confirm": ("암호 확인", "Confirm password"),
+    "pw.showHide": ("암호 표시/숨기기", "Show/hide password"),
+    "pw.empty": ("암호를 입력하세요.", "Enter a password."),
+    "pw.mismatch": ("두 암호가 일치하지 않습니다.", "The passwords do not match."),
+    "pw.match": ("두 암호가 일치합니다", "Passwords match"),
+    "pw.strength": ("암호 강도", "Strength"),
+    "pw.entropy": ("추정 {0:F0}비트", "≈ {0:F0} bits"),
+    "pw.hint.empty": ("암호를 입력하세요.", "Enter a password."),
+    "pw.hint.common": ("너무 흔한 암호입니다.", "This is a very common password."),
+    "pw.hint.short": ("8자 이상으로 만드세요.", "Use at least 8 characters."),
+    "pw.hint.longer": ("12자 이상이면 훨씬 안전합니다.", "12+ characters is much safer."),
+    "pw.hint.mixcase": ("대문자와 소문자를 섞으세요.", "Mix upper- and lower-case letters."),
+    "pw.hint.digit": ("숫자를 넣으세요.", "Add digits."),
+    "pw.hint.symbol": ("기호(!@#…)를 넣으세요.", "Add symbols (!@#…)."),
+    "pw.hint.pattern": ("반복·연속 문자(aaa, 123)를 줄이세요.", "Avoid repeats and sequences (aaa, 123)."),
+    "strength.VeryWeak": ("매우 약함", "Very weak"),
+    "strength.Weak": ("약함", "Weak"),
+    "strength.Fair": ("보통", "Fair"),
+    "strength.Strong": ("강함", "Strong"),
+    "strength.VeryStrong": ("매우 강함", "Very strong"),
+    "enc.weak": ("취약", "weak"),
+    "enc.warn.zipcrypto": ("ZipCrypto는 오래된 방식이라 쉽게 풀릴 수 있습니다. 꼭 필요할 때만 쓰세요.", "ZipCrypto is legacy and easy to break. Use it only when you must."),
+    "enc.warn.zipnames": ("ZIP은 파일 이름을 암호화하지 않습니다. 이름도 숨기려면 7Z + 파일 이름 암호화를 쓰세요.", "ZIP does not encrypt file names. Use 7Z with name encryption to hide them."),
+    "enc.warn.7znames": ("파일 이름이 보입니다. 이름까지 숨기려면 [파일 이름도 암호화]를 켜세요.", "File names stay visible. Turn on name encryption to hide them."),
+    "enc.warn.weakpw": ("암호가 약합니다. 길고 다양한 문자로 만드세요.", "The password is weak. Make it longer and more varied."),
+    "enc.warn.unsupported": ("이 형식은 암호화를 지원하지 않습니다.", "This format does not support encryption."),
+    "pwdlg.title": ("암호 입력", "Enter password"),
+    "pwdlg.for": ("{0} 은(는) 암호로 보호되어 있습니다.", "{0} is password protected."),
+    "pwdlg.wrong": ("암호가 올바르지 않습니다. 다시 입력하세요.", "Wrong password. Try again."),
+    "pwdlg.note": ("암호는 이번 작업에만 메모리에서 사용되고 저장되지 않습니다.", "The password is kept in memory for this task only and is never saved."),
+    "pwpage.title": ("암호 설정", "Password"),
+    "pwpage.subtitle": ("안전한 암호를 만들고 강도를 확인하세요. Zipark는 암호를 어디에도 저장하지 않으며, 압축 엔진에는 명령줄이 아닌 표준 입력으로만 전달합니다.",
+                        "Create a strong password and check its strength. Zipark never stores passwords and hands them to the engine through stdin, not the command line."),
+    "pwpage.use": ("이 암호로 새 압축 만들기", "Create an archive with this password"),
+    "pwpage.guide": ("암호화 안내", "Encryption guide"),
+    "pwpage.g1t": ("7Z + AES-256 + 파일 이름 암호화 (권장)", "7Z + AES-256 + name encryption (recommended)"),
+    "pwpage.g1": ("내용과 파일 목록이 모두 보호됩니다.", "Protects both contents and the file list."),
+    "pwpage.g2t": ("ZIP + AES-256", "ZIP + AES-256"),
+    "pwpage.g2": ("내용은 안전하지만 파일 이름은 보입니다. 대부분의 최신 압축 프로그램이 열 수 있습니다.", "Contents are safe but names are visible. Most modern tools can open it."),
+    "pwpage.g3t": ("ZIP + ZipCrypto (비권장)", "ZIP + ZipCrypto (not recommended)"),
+    "pwpage.g3": ("호환성은 높지만 보안이 약합니다.", "Highly compatible but weak."),
+    "pwpage.g4t": ("암호를 잊으면 복구할 수 없습니다", "Lost passwords cannot be recovered"),
+    "pwpage.g4": ("Zipark에는 뒷문이 없습니다. 암호를 안전한 곳에 따로 보관하세요.", "There is no back door. Keep your password somewhere safe."),
+
+    # drives
+    "drives.title": ("가상 드라이브 관리자", "Virtual drives"),
+    "drives.subtitle": ("ISO·ZIP·7Z 파일을 실제 드라이브처럼 탑재합니다. ZIP/7Z 드라이브는 읽기 전용이며, 필요한 파일·블록만 그때그때 풀어 메모리/디스크 캐시에 둡니다. 원본 압축 파일은 탑재 중 변경할 수 없도록 잠급니다.",
+                        "Mount ISO, ZIP and 7Z files as real drives. ZIP/7Z drives are read-only and decode only the files/blocks you open, cached in memory/disk. The source archive is locked against changes while mounted."),
+    "drives.winfspOk": ("WinFsp {0} 설치됨 — ZIP/7Z 드라이브 사용 가능", "WinFsp {0} installed — ZIP/7Z drives available"),
+    "drives.winfspMissing": ("WinFsp가 설치되어 있지 않습니다", "WinFsp is not installed"),
+    "drives.winfspExplain": ("ZIP/7Z 드라이브는 WinFsp(무료 오픈소스 파일 시스템 드라이버)가 필요합니다. Zipark는 드라이버를 몰래 설치하지 않습니다. 공식 사이트에서 직접 설치한 뒤 [새로 고침]을 누르세요.",
+                             "ZIP/7Z drives need WinFsp (a free, open-source file-system driver). Zipark never installs drivers silently — install it from the official site, then press Refresh."),
+    "drives.isoNote": ("ISO는 Windows 기본 가상 디스크 기능으로 탑재하므로 추가 설치가 필요 없습니다.", "ISO images use Windows' built-in virtual disk support — nothing to install."),
+    "drives.getWinFsp": ("WinFsp 공식 사이트 열기", "Open the WinFsp website"),
+    "drives.needWinFsp": ("ZIP/7Z 드라이브에는 WinFsp가 필요합니다", "WinFsp is required for ZIP/7Z drives"),
+    "drives.needWinFspDetail": ("가상 드라이브 관리자 화면의 안내에 따라 WinFsp를 설치하세요.", "Install WinFsp as described on the Virtual drives screen."),
+    "drives.mount": ("압축 파일 탑재…", "Mount archive…"),
+    "drives.letter": ("드라이브 문자", "Drive letter"),
+    "drives.auto": ("자동", "Auto"),
+    "drives.unmount": ("탑재 해제", "Unmount"),
+    "drives.none": ("탑재된 드라이브가 없습니다.", "No drives mounted."),
+    "drives.mountable": ("탑재 가능한 파일", "Mountable files"),
+    "drivestate.Mounting": ("탑재 중", "Mounting"),
+    "drivestate.Mounted": ("탑재됨", "Mounted"),
+    "drivestate.Unmounting": ("해제 중", "Unmounting"),
+    "drivestate.Unmounted": ("해제됨", "Unmounted"),
+    "drivestate.Failed": ("실패", "Failed"),
+
+    # iso
+    "iso.title": ("ISO 탐색기", "ISO explorer"),
+    "iso.subtitle": ("ISO 이미지 안을 둘러보고 파일을 꺼내거나, Windows 가상 DVD 드라이브로 탑재합니다.", "Browse and extract ISO images or mount them as a virtual DVD drive."),
+    "iso.open": ("ISO 열기", "Open ISO"),
+    "iso.mount": ("가상 DVD로 탑재", "Mount as DVD"),
+    "iso.unmount": ("탑재 해제", "Unmount"),
+    "iso.mountedAt": ("{0} 드라이브에 탑재됨", "Mounted at {0}"),
+    "iso.notMounted": ("탑재되지 않음", "Not mounted"),
+    "iso.onlyIso": ("ISO 파일만 가상 DVD로 탑재할 수 있습니다.", "Only ISO images can be mounted as a DVD."),
+    "iso.empty": ("열린 ISO가 없습니다", "No ISO open"),
+    "iso.emptyHint": ("ISO 파일을 끌어다 놓거나 [ISO 열기]를 누르세요.", "Drop an ISO here or press Open ISO."),
+
+    # jobs
+    "jobs.title": ("작업 큐", "Job queue"),
+    "jobs.subtitle": ("모든 작업은 순서대로 처리되며 언제든 안전하게 취소할 수 있습니다. 취소하면 만들던 결과물만 지우고 원본은 그대로 둡니다.",
+                      "Jobs run in order and can be cancelled safely at any time — only the partial output is removed, never your originals."),
+    "jobs.cancelAll": ("모두 취소", "Cancel all"),
+    "jobs.clear": ("완료 항목 지우기", "Clear finished"),
+    "jobs.parallel": ("동시 작업 수", "Parallel jobs"),
+    "jobs.none": ("작업이 없습니다.", "No jobs yet."),
+    "stage.Queued": ("대기 중", "Queued"),
+    "stage.Preparing": ("준비 중", "Preparing"),
+    "stage.Scanning": ("확인 중", "Scanning"),
+    "stage.Running": ("진행 중", "Running"),
+    "stage.Verifying": ("검사 중", "Verifying"),
+    "stage.Finalizing": ("마무리 중", "Finalizing"),
+    "stage.Completed": ("완료", "Completed"),
+    "stage.Failed": ("실패", "Failed"),
+    "stage.Cancelled": ("취소됨", "Cancelled"),
+    "kind.Compress": ("압축", "Compress"),
+    "kind.Extract": ("압축 해제", "Extract"),
+    "kind.Test": ("검사", "Test"),
+    "kind.Checksum": ("체크섬", "Checksum"),
+    "kind.SplitFile": ("파일 분할", "Split"),
+    "kind.MergeFile": ("파일 병합", "Merge"),
+    "warn.blocked": ("위험한 항목 {0}개를 건너뜀", "{0} unsafe entries skipped"),
+    "warn.renamed": ("{0}개 파일을 새 이름으로 저장", "{0} files saved under a new name"),
+    "warn.skipped": ("이미 있는 파일 {0}개를 건너뜀", "{0} existing files skipped"),
+    "warn.unverified": ("매니페스트가 없어 무결성을 확인하지 못함", "no manifest — integrity not verified"),
+
+    # verify
+    "verify.title": ("파일 검사", "Verify"),
+    "verify.subtitle": ("압축 파일 무결성을 검사하고 CRC32 / SHA-256 체크섬을 계산·저장·대조합니다.", "Test archive integrity and compute, save and verify CRC32 / SHA-256 checksums."),
+    "verify.tabTest": ("압축 파일 검사", "Test archives"),
+    "verify.tabHash": ("체크섬", "Checksums"),
+    "verify.test": ("검사 시작", "Test"),
+    "verify.ok": ("정상 (파일 {0}개)", "OK ({0} files)"),
+    "verify.compute": ("계산", "Compute"),
+    "verify.saveManifest": ("SHA-256 목록 저장", "Save SHA-256 list"),
+    "verify.checkManifest": ("SHA-256 목록으로 대조", "Verify against list"),
+    "verify.pickManifest": ("SHA-256 목록 파일 선택", "Choose SHA-256 list"),
+    "verify.manifestSaved": ("SHA-256 목록을 저장했습니다", "SHA-256 list saved"),
+    "verify.match": ("일치", "Match"),
+    "verify.mismatch": ("불일치", "Mismatch"),
+    "verify.missing": ("파일 없음", "Missing"),
+    "verify.allMatch": ("{0}개 파일이 모두 일치합니다", "All {0} files match"),
+    "verify.someBad": ("{1}개 중 {0}개가 일치하지 않거나 없습니다", "{0} of {1} files do not match or are missing"),
+
+    # settings
+    "settings.title": ("환경설정", "Settings"),
+    "settings.subtitle": ("설정은 이 PC의 사용자 폴더에만 저장됩니다. 암호는 저장하지 않습니다.", "Settings are stored only in your user profile on this PC. Passwords are never stored."),
+    "settings.appearance": ("화면", "Appearance"),
+    "settings.language": ("언어", "Language"),
+    "settings.theme": ("테마", "Theme"),
+    "theme.System": ("Windows 설정 따르기", "Follow Windows"),
+    "theme.Light": ("라이트", "Light"),
+    "theme.Dark": ("다크", "Dark"),
+    "settings.expert": ("전문가 모드 (상세 옵션 표시)", "Expert mode (show advanced options)"),
+    "settings.expertHint": ("끄면 초보자용 간단 모드로 꼭 필요한 옵션만 보입니다.", "Off = simple mode with only the essentials."),
+    "settings.archives": ("압축 기본값", "Archive defaults"),
+    "settings.defaultFormat": ("기본 형식", "Default format"),
+    "settings.defaultLevel": ("기본 압축률", "Default level"),
+    "settings.worker": ("작업을 별도 프로세스에서 실행 (안정성)", "Run jobs in a separate process (stability)"),
+    "settings.restartHint": ("다음 실행부터 적용됩니다.", "Applies after restart."),
+    "settings.security": ("안전 장치", "Safety limits"),
+    "settings.bombTotal": ("풀어낸 전체 크기 상한 (GB)", "Max unpacked total (GB)"),
+    "settings.bombRatio": ("의심 압축률 (배)", "Suspicious ratio (x)"),
+    "settings.securityNote": ("상한을 넘는 압축 파일은 '압축 폭탄'으로 보고 풀지 않습니다. 경로 탐색·심볼릭 링크 항목은 설정과 관계없이 항상 차단됩니다.",
+                              "Archives above these limits are treated as archive bombs. Path traversal and symlink entries are always blocked."),
+    "settings.drives": ("가상 드라이브", "Virtual drives"),
+    "settings.memCache": ("메모리 캐시 (MB)", "Memory cache (MB)"),
+    "settings.diskCache": ("디스크 캐시 (MB, 0 = 사용 안 함)", "Disk cache (MB, 0 = off)"),
+    "settings.driveLetter": ("우선 드라이브 문자", "Preferred drive letter"),
+    "settings.cacheNote": ("디스크 캐시는 세션마다 새로 만든 키로 AES-256-GCM 암호화되어, 암호화된 압축 파일의 내용이 평문으로 디스크에 남지 않습니다.",
+                           "The disk cache is AES-256-GCM encrypted with a fresh key per session, so decrypted content never lands on disk in plaintext."),
+    "settings.integration": ("Windows 탐색기 통합", "Explorer integration"),
+    "settings.shellOn": ("우클릭 메뉴가 등록되어 있습니다 ({0})", "Context menu registered ({0})"),
+    "settings.shellOff": ("우클릭 메뉴가 등록되어 있지 않습니다.", "Context menu not registered."),
+    "settings.shellAdd": ("우클릭 메뉴 등록", "Add to context menu"),
+    "settings.shellRemove": ("우클릭 메뉴 제거", "Remove from context menu"),
+    "settings.shellAdded": ("탐색기 우클릭 메뉴를 등록했습니다", "Context menu added"),
+    "settings.shellRemoved": ("탐색기 우클릭 메뉴를 제거했습니다", "Context menu removed"),
+    "settings.shellWin11": ("Windows 11에서는 [더 많은 옵션 표시](Shift+F10) 안에 나타납니다.", "On Windows 11 it appears under 'Show more options' (Shift+F10)."),
+    "settings.shellNote": ("현재 사용자에게만 등록되며 관리자 권한이 필요 없습니다. 압축 형식의 기본 프로그램은 바꾸지 않고 '연결 프로그램' 목록에만 추가합니다.",
+                           "Registered for the current user only (no admin rights). Default apps are not changed; Zipark is only added to 'Open with'."),
+    "settings.engine": ("압축 엔진", "Compression engine"),
+    "settings.engineNote": ("비워 두면 설치 폴더의 engine\\7z.exe, 그다음 설치된 7-Zip을 자동으로 찾습니다.", "Leave empty to use engine\\7z.exe next to Zipark, then an installed 7-Zip."),
+    "settings.about": ("정보", "About"),
+    "settings.aboutText": ("Zipark — 영구 무료 오픈소스 압축 프로그램 (MIT 라이선스). 7-Zip(LGPL)과 WinFsp(GPLv3 + FLOSS 예외)를 사용합니다. 제품명은 상표 조사가 끝날 때까지 가칭입니다.",
+                           "Zipark — free, open-source archiver (MIT License). Uses 7-Zip (LGPL) and WinFsp (GPLv3 + FLOSS exception). The product name is provisional pending a trademark review."),
+    "settings.developer": ("개발자", "Developer"),
+    "settings.youtube": ("유튜브", "YouTube"),
+    "settings.website": ("공식 사이트", "Website"),
+    "settings.manual": ("사용 설명서", "User manual"),
+    "settings.history": ("버전 기록", "Version history"),
+    "settings.source": ("소스 코드 (GitHub)", "Source code (GitHub)"),
+    "home.madeBy": ("개발:", "Made by"),
+    "notice.docMissing": ("문서 파일을 찾을 수 없습니다", "Document not found"),
+    "settings.licenses": ("오픈소스 라이선스 고지", "Open-source notices"),
+    "settings.logs": ("로그 폴더 열기", "Open log folder"),
+
+    # shell menu
+    "shell.open": ("Zipark로 열기", "Open with Zipark"),
+    "shell.zip": ("ZIP으로 압축", "Compress to ZIP"),
+    "shell.7z": ("7Z로 압축", "Compress to 7Z"),
+    "shell.advanced": ("고급 압축 설정…", "Advanced compression…"),
+    "shell.extractHere": ("여기에 압축 풀기", "Extract here"),
+    "shell.extractFolder": ("새 폴더에 압축 풀기", "Extract to new folder"),
+    "shell.test": ("압축 파일 검사", "Test archive"),
+    "shell.mount": ("가상 드라이브 탑재", "Mount as virtual drive"),
+    "shell.unmount": ("가상 드라이브 해제 (Zipark)", "Unmount virtual drive (Zipark)"),
+
+    # notices
+    "notice.error": ("작업을 완료하지 못했습니다", "Something went wrong"),
+    "notice.testQueued": ("검사를 작업 큐에 추가했습니다", "Test queued"),
+    "notice.extractQueued": ("압축 해제를 작업 큐에 추가했습니다", "Extraction queued"),
+    "notice.extractBatch": ("압축 파일 {0}개의 해제를 작업 큐에 추가했습니다", "{0} archive(s) queued for extraction"),
+    "notice.compressQueued": ("압축 작업 {0}개를 작업 큐에 추가했습니다", "{0} compression job(s) queued"),
+    "notice.splitQueued": ("파일 분할을 작업 큐에 추가했습니다", "Split queued"),
+    "notice.mergeQueued": ("파일 병합을 작업 큐에 추가했습니다", "Merge queued"),
+    "notice.mounted": ("{0} 드라이브로 탑재했습니다", "Mounted as {0}"),
+    "notice.unmounted": ("탑재를 해제했습니다", "Unmounted"),
+    "notice.notOurDrive": ("Zipark가 탑재한 드라이브가 아닙니다", "This drive was not mounted by Zipark"),
+    "notice.archiveWarnings": ("압축 파일에 경고가 있습니다", "The archive reported warnings"),
+
+    # errors (ErrorCode)
+    "err.Unknown": ("알 수 없는 오류가 발생했습니다.", "An unexpected error occurred."),
+    "err.Cancelled": ("취소되었습니다.", "Cancelled."),
+    "err.EngineNotFound": ("압축 엔진(7-Zip)을 찾을 수 없습니다.", "The 7-Zip engine was not found."),
+    "err.EngineCrashed": ("압축 엔진이 비정상 종료되었습니다. 앱은 안전하게 계속 실행됩니다.", "The compression engine stopped unexpectedly. The app keeps running safely."),
+    "err.WrongPassword": ("암호가 올바르지 않습니다.", "Wrong password."),
+    "err.PasswordRequired": ("암호가 필요한 압축 파일입니다.", "This archive needs a password."),
+    "err.CorruptArchive": ("압축 파일이 손상되었거나 데이터 오류가 있습니다.", "The archive is damaged or contains data errors."),
+    "err.MissingVolume": ("분할 볼륨이 누락되었습니다.", "A split volume is missing."),
+    "err.DamagedVolume": ("손상된 볼륨(조각)이 있습니다.", "A volume (part) is damaged."),
+    "err.UnsupportedFormat": ("지원하지 않는 형식이거나 압축 파일이 아닙니다.", "Unsupported format or not an archive."),
+    "err.UnsafePath": ("안전하지 않은 경로가 포함되어 있습니다.", "The archive contains unsafe paths."),
+    "err.ArchiveBomb": ("압축 폭탄으로 의심되어 차단했습니다 (비정상적인 크기·압축률).", "Blocked as a suspected archive bomb (abnormal size or ratio)."),
+    "err.DiskFull": ("디스크 공간이 부족합니다.", "Not enough disk space."),
+    "err.AccessDenied": ("권한이 없어 접근할 수 없습니다.", "Access denied."),
+    "err.FileNotFound": ("파일을 찾을 수 없습니다.", "File not found."),
+    "err.InvalidArgument": ("설정이 올바르지 않습니다.", "Invalid settings."),
+    "err.VirtualDriveUnavailable": ("가상 드라이브를 사용할 수 없습니다 (WinFsp 필요).", "Virtual drives are unavailable (WinFsp required)."),
+    "err.DriveLetterInUse": ("드라이브 문자가 이미 사용 중입니다.", "That drive letter is already in use."),
+    "err.MountFailed": ("탑재에 실패했습니다.", "Mounting failed."),
+    "err.ChecksumMismatch": ("체크섬이 일치하지 않습니다.", "Checksum mismatch."),
+}
+
+# Keys built dynamically in code from enum names (prefix → members). Checked for completeness too.
+ENUMS = {
+    "err.": ["Unknown", "Cancelled", "EngineNotFound", "EngineCrashed", "WrongPassword", "PasswordRequired", "CorruptArchive",
+             "MissingVolume", "DamagedVolume", "UnsupportedFormat", "UnsafePath", "ArchiveBomb", "DiskFull", "AccessDenied",
+             "FileNotFound", "InvalidArgument", "VirtualDriveUnavailable", "DriveLetterInUse", "MountFailed", "ChecksumMismatch"],
+    "stage.": ["Queued", "Preparing", "Scanning", "Running", "Verifying", "Finalizing", "Completed", "Failed", "Cancelled"],
+    "kind.": ["Compress", "Extract", "Test", "Checksum", "SplitFile", "MergeFile"],
+    "level.": ["Store", "Fastest", "Fast", "Normal", "Maximum", "Ultra"],
+    "conflict.": ["Rename", "Skip", "Overwrite"],
+    "theme.": ["System", "Light", "Dark"],
+    "strength.": ["VeryWeak", "Weak", "Fair", "Strong", "VeryStrong"],
+    "scheme.": ["Single", "Numbered", "ZipSpanned", "RarParts", "RarOld"],
+    "drivestate.": ["Mounting", "Mounted", "Unmounting", "Unmounted", "Failed"],
+    "nav.": ["home", "explorer", "compress", "extract", "split", "password", "drives", "iso", "jobs", "verify", "settings"],
+    "warn.": ["blocked", "renamed", "skipped", "unverified"],
+    "pw.hint.": ["empty", "common", "short", "longer", "mixcase", "digit", "symbol", "pattern"],
+    "enc.warn.": ["zipcrypto", "zipnames", "7znames", "weakpw", "unsupported"],
+}
+
+
+def used_keys():
+    keys = set()
+    rx = re.compile(r'(?:"|DynamicResource )s\.([A-Za-z0-9_.]+)')
+    for dirpath, _, files in os.walk(DESKTOP):
+        if os.sep + "obj" in dirpath or os.sep + "bin" in dirpath:
+            continue
+        for f in files:
+            if f.endswith((".cs", ".xaml")) and not f.endswith((".g.cs", ".g.i.cs")) and dirpath != os.path.join(DESKTOP, "Strings"):
+                with open(os.path.join(dirpath, f), encoding="utf-8") as fh:
+                    for m in rx.finditer(fh.read()):
+                        k = m.group(1)
+                        if not k.endswith("."):
+                            keys.add(k)
+    return keys
+
+
+def main():
+    errors = []
+    for k in sorted(used_keys()):
+        if k not in S:
+            errors.append(f"missing key used in code: s.{k}")
+    for prefix, members in ENUMS.items():
+        for m in members:
+            if prefix + m not in S:
+                errors.append(f"missing enum key: s.{prefix}{m}")
+    for k, v in S.items():
+        if len(v) != 2 or not v[0] or not v[1]:
+            errors.append(f"incomplete translation: s.{k}")
+    if errors:
+        print("\n".join(errors))
+        sys.exit(1)
+
+    out_dir = os.path.join(DESKTOP, "Strings")
+    os.makedirs(out_dir, exist_ok=True)
+    for idx, lang in enumerate(["ko", "en"]):
+        lines = [
+            '<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"',
+            '                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"',
+            '                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">',
+            f"  <!-- GENERATED by tools/i18n/strings.py — edit that file, not this one. Language: {lang} -->",
+        ]
+        for k in sorted(S):
+            lines.append(f'  <sys:String x:Key="s.{k}" xml:space="preserve">{escape(S[k][idx])}</sys:String>')
+        lines.append("</ResourceDictionary>")
+        with open(os.path.join(out_dir, f"{lang}.xaml"), "w", encoding="utf-8", newline="\r\n") as fh:
+            fh.write("\n".join(lines) + "\n")
+    print(f"wrote {len(S)} strings x 2 languages")
+
+
+if __name__ == "__main__":
+    main()

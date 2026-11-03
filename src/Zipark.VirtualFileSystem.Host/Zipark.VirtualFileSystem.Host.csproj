@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Zipark.VfsHost</AssemblyName>
+    <RootNamespace>Zipark.VirtualFileSystem.Host</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- winfsp.net: GPLv3 with FLOSS exception (Bill Zissimopoulos). Loads the user-installed WinFsp driver DLL at runtime. -->
+    <PackageReference Include="winfsp.net" Version="2.2.26286" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Zipark.VirtualFileSystem\Zipark.VirtualFileSystem.csproj" />
+  </ItemGroup>
+</Project>

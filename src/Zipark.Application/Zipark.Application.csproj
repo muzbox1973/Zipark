@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Zipark.Application</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Zipark.Core\Zipark.Core.csproj" />
+    <ProjectReference Include="..\Zipark.Settings\Zipark.Settings.csproj" />
+    <ProjectReference Include="..\Zipark.Crypto\Zipark.Crypto.csproj" />
+    <ProjectReference Include="..\Zipark.Compression\Zipark.Compression.csproj" />
+    <ProjectReference Include="..\Zipark.ArchiveExplorer\Zipark.ArchiveExplorer.csproj" />
+    <ProjectReference Include="..\Zipark.SplitVolumes\Zipark.SplitVolumes.csproj" />
+    <ProjectReference Include="..\Zipark.VirtualDisk.ISO\Zipark.VirtualDisk.ISO.csproj" />
+    <ProjectReference Include="..\Zipark.ShellIntegration\Zipark.ShellIntegration.csproj" />
+    <ProjectReference Include="..\Zipark.VirtualFileSystem\Zipark.VirtualFileSystem.csproj" />
+  </ItemGroup>
+</Project>

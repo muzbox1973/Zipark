@@ -1,0 +1,152 @@
+<UserControl x:Class="Zipark.Desktop.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <UserControl.Resources>
+    <Style x:Key="Row" TargetType="Grid">
+      <Setter Property="Margin" Value="0,0,0,12"/>
+    </Style>
+  </UserControl.Resources>
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="32,28,32,90" MaxWidth="900">
+      <TextBlock Text="{DynamicResource s.settings.title}" Style="{StaticResource Text.Title}"/>
+      <TextBlock Text="{DynamicResource s.settings.subtitle}" Style="{StaticResource Text.Subtitle}" Margin="0,0,0,20"/>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+        <StackPanel>
+          <TextBlock Text="{DynamicResource s.settings.appearance}" Style="{StaticResource Text.Section}"/>
+          <Grid Style="{StaticResource Row}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <TextBlock Text="{DynamicResource s.settings.language}" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Left" ItemsSource="{Binding Languages}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Language}"/>
+          </Grid>
+          <Grid Style="{StaticResource Row}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <TextBlock Text="{DynamicResource s.settings.theme}" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Left" ItemsSource="{Binding Themes}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Theme}"/>
+          </Grid>
+          <CheckBox Content="{DynamicResource s.settings.expert}" IsChecked="{Binding ExpertMode}"/>
+          <TextBlock Text="{DynamicResource s.settings.expertHint}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="22,0,0,0"/>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+        <StackPanel>
+          <TextBlock Text="{DynamicResource s.settings.archives}" Style="{StaticResource Text.Section}"/>
+          <Grid Style="{StaticResource Row}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <TextBlock Text="{DynamicResource s.settings.defaultFormat}" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Left" ItemsSource="{Binding Formats}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding DefaultFormat}"/>
+          </Grid>
+          <Grid Style="{StaticResource Row}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <TextBlock Text="{DynamicResource s.settings.defaultLevel}" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Left" ItemsSource="{Binding Levels}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding DefaultLevel}"/>
+          </Grid>
+          <Grid Style="{StaticResource Row}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <TextBlock Text="{DynamicResource s.extract.conflict}" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="1" Width="260" HorizontalAlignment="Left" ItemsSource="{Binding Conflicts}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Conflict}"/>
+          </Grid>
+          <CheckBox Content="{DynamicResource s.extract.openAfter}" IsChecked="{Binding OpenFolderAfterExtract}"/>
+          <CheckBox Content="{DynamicResource s.compress.verify}" IsChecked="{Binding VerifyAfterCompress}"/>
+          <CheckBox Content="{DynamicResource s.settings.worker}" IsChecked="{Binding UseWorkerProcess}"/>
+          <TextBlock Text="{DynamicResource s.settings.restartHint}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="22,0,0,0"/>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+        <StackPanel>
+          <TextBlock Text="{DynamicResource s.settings.security}" Style="{StaticResource Text.Section}"/>
+          <Grid Style="{StaticResource Row}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <TextBlock Text="{DynamicResource s.settings.bombTotal}" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Width="120" HorizontalAlignment="Left" Text="{Binding BombMaxTotalGb}"/>
+          </Grid>
+          <Grid Style="{StaticResource Row}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <TextBlock Text="{DynamicResource s.settings.bombRatio}" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Width="120" HorizontalAlignment="Left" Text="{Binding BombSuspiciousRatio}"/>
+          </Grid>
+          <TextBlock Text="{DynamicResource s.settings.securityNote}" Style="{StaticResource Text.Muted}" FontSize="12"/>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+        <StackPanel>
+          <TextBlock Text="{DynamicResource s.settings.drives}" Style="{StaticResource Text.Section}"/>
+          <Grid Style="{StaticResource Row}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <TextBlock Text="{DynamicResource s.settings.memCache}" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Width="120" HorizontalAlignment="Left" Text="{Binding MemoryCacheMb}"/>
+          </Grid>
+          <Grid Style="{StaticResource Row}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <TextBlock Text="{DynamicResource s.settings.diskCache}" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Width="120" HorizontalAlignment="Left" Text="{Binding DiskCacheMb}"/>
+          </Grid>
+          <Grid Style="{StaticResource Row}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <TextBlock Text="{DynamicResource s.settings.driveLetter}" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="1" Width="80" HorizontalAlignment="Left" ItemsSource="{Binding DriveLetters}" SelectedItem="{Binding PreferredDriveLetter}"/>
+          </Grid>
+          <TextBlock Text="{DynamicResource s.settings.cacheNote}" Style="{StaticResource Text.Muted}" FontSize="12"/>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+        <StackPanel>
+          <TextBlock Text="{DynamicResource s.settings.integration}" Style="{StaticResource Text.Section}"/>
+          <TextBlock Text="{Binding ShellStatus}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+          <StackPanel Orientation="Horizontal">
+            <Button Content="{DynamicResource s.settings.shellAdd}" Command="{Binding RegisterShellCommand}" Margin="0,0,8,0"/>
+            <Button Content="{DynamicResource s.settings.shellRemove}" Command="{Binding UnregisterShellCommand}"/>
+          </StackPanel>
+          <TextBlock Text="{DynamicResource s.settings.shellNote}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="0,8,0,0"/>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+        <StackPanel>
+          <TextBlock Text="{DynamicResource s.settings.engine}" Style="{StaticResource Text.Section}"/>
+          <TextBlock Text="{Binding EngineStatus}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Content="{DynamicResource s.common.browse}" Command="{Binding BrowseEngineCommand}" Margin="8,0,0,0"/>
+            <TextBox Text="{Binding SevenZipPath, UpdateSourceTrigger=LostFocus}"/>
+          </DockPanel>
+          <TextBlock Text="{DynamicResource s.settings.engineNote}" Style="{StaticResource Text.Muted}" FontSize="12" Margin="0,8,0,0"/>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <TextBlock Text="{DynamicResource s.settings.about}" Style="{StaticResource Text.Section}"/>
+          <TextBlock>
+            <Run Text="Zipark "/><Run Text="{Binding Version, Mode=OneWay}"/>
+          </TextBlock>
+          <TextBlock Text="{DynamicResource s.settings.aboutText}" Style="{StaticResource Text.Muted}" Margin="0,4,0,10"/>
+          <Grid Margin="0,0,0,12">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="120"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+            <TextBlock Text="{DynamicResource s.settings.developer}" Style="{StaticResource Text.Muted}" Margin="0,2"/>
+            <TextBlock Grid.Column="1" Text="{Binding Developer}" FontWeight="SemiBold" Margin="0,2"/>
+            <TextBlock Grid.Row="1" Text="{DynamicResource s.settings.youtube}" Style="{StaticResource Text.Muted}" Margin="0,2"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,2">
+              <Hyperlink Command="{Binding OpenYouTubeCommand}" Foreground="{DynamicResource Brush.Accent}"><Run Text="{Binding YouTubeUrl, Mode=OneWay}"/></Hyperlink>
+            </TextBlock>
+            <TextBlock Grid.Row="2" Text="{DynamicResource s.settings.website}" Style="{StaticResource Text.Muted}" Margin="0,2"/>
+            <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,2">
+              <Hyperlink Command="{Binding OpenWebsiteCommand}" Foreground="{DynamicResource Brush.Accent}"><Run Text="{Binding WebsiteUrl, Mode=OneWay}"/></Hyperlink>
+            </TextBlock>
+          </Grid>
+          <WrapPanel>
+            <Button Content="{DynamicResource s.settings.manual}" Command="{Binding OpenManualCommand}" Margin="0,0,8,8" Style="{StaticResource Button.Accent}"/>
+            <Button Content="{DynamicResource s.settings.history}" Command="{Binding OpenHistoryCommand}" Margin="0,0,8,8"/>
+            <Button Content="{DynamicResource s.settings.source}" Command="{Binding OpenRepositoryCommand}" Margin="0,0,8,8"/>
+            <Button Content="{DynamicResource s.settings.licenses}" Command="{Binding OpenLicensesCommand}" Margin="0,0,8,8"/>
+            <Button Content="{DynamicResource s.settings.logs}" Command="{Binding OpenLogsCommand}" Margin="0,0,8,8"/>
+          </WrapPanel>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

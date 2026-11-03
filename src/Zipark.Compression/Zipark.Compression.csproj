@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Zipark.Compression</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Zipark.Core\Zipark.Core.csproj" />
+    <ProjectReference Include="..\Zipark.Crypto\Zipark.Crypto.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Zipark.Benchmark</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Zipark.Compression\Zipark.Compression.csproj" />
+    <ProjectReference Include="..\..\src\Zipark.VirtualFileSystem\Zipark.VirtualFileSystem.csproj" />
+  </ItemGroup>
+</Project>

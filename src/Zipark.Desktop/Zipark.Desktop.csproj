@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>Zipark</AssemblyName>
+    <RootNamespace>Zipark.Desktop</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\Zipark.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Zipark.ico" />
+    <Resource Include="Assets\logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Zipark.Application\Zipark.Application.csproj" />
+    <!-- Exe projects referenced so their binaries ship next to Zipark.exe -->
+    <ProjectReference Include="..\Zipark.Worker\Zipark.Worker.csproj" />
+    <ProjectReference Include="..\Zipark.VirtualFileSystem.Host\Zipark.VirtualFileSystem.Host.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE" Link="LICENSE.txt" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\..\LICENSE')" />
+    <None Include="..\..\THIRD_PARTY_NOTICES.md" Link="THIRD_PARTY_NOTICES.md" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\..\THIRD_PARTY_NOTICES.md')" />
+    <None Include="..\..\CHANGELOG.md" Link="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\docs\html\Zipark-Manual.html" Link="Zipark-Manual.html" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\docs\html\Zipark-VersionHistory.html" Link="Zipark-VersionHistory.html" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,102 @@
+<UserControl x:Class="Zipark.Desktop.Views.ArchiveListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:infra="clr-namespace:Zipark.Desktop.Infrastructure">
+  <!-- Shared archive content list (archive explorer + ISO explorer). Virtualized for large archives. -->
+  <UserControl.Resources>
+    <infra:BytesConverter x:Key="Bytes"/>
+    <infra:DateConverter x:Key="Date"/>
+    <infra:BoolToVisibilityConverter x:Key="Vis"/>
+  </UserControl.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <Grid Margin="0,0,0,8">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition/>
+        <ColumnDefinition Width="260"/>
+      </Grid.ColumnDefinitions>
+      <Button Style="{StaticResource Button.Icon}" Content="&#xE74A;" Command="{Binding UpCommand}" ToolTip="{DynamicResource s.explorer.up}"
+              AutomationProperties.Name="{DynamicResource s.explorer.up}"/>
+      <Border Grid.Column="1" Background="{DynamicResource Brush.Input}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" CornerRadius="6" Margin="6,0" Padding="10,0">
+        <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+          <Run Text="{Binding ArchiveName, Mode=OneWay}" FontWeight="SemiBold"/><Run Text="{Binding Location, Mode=OneWay}" Foreground="{DynamicResource Brush.TextMuted}"/>
+        </TextBlock>
+      </Border>
+      <Grid Grid.Column="2">
+        <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged, Delay=200}" Padding="30,5,8,5" AutomationProperties.Name="{DynamicResource s.explorer.search}"/>
+        <TextBlock Text="&#xE721;" FontFamily="{StaticResource Font.Icons}" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextMuted}" IsHitTestVisible="False"/>
+      </Grid>
+    </Grid>
+
+    <ListView x:Name="List" Grid.Row="1" ItemsSource="{Binding Items}" SelectionMode="Extended" SelectionChanged="OnSelectionChanged"
+              MouseDoubleClick="OnDoubleClick" KeyDown="OnKeyDown" AutomationProperties.Name="{DynamicResource s.nav.explorer}"
+              VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" VirtualizingPanel.ScrollUnit="Item">
+      <ListView.View>
+        <GridView>
+          <GridViewColumn Width="380">
+            <GridViewColumn.Header>
+              <TextBlock Text="{DynamicResource s.col.name}"/>
+            </GridViewColumn.Header>
+            <GridViewColumn.CellTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center" Margin="0,0,8,0">
+                    <TextBlock.Style>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="&#xE7C3;"/>
+                        <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                            <Setter Property="Text" Value="&#xE8B7;"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Highlight}"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </TextBlock.Style>
+                  </TextBlock>
+                  <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                  <TextBlock Text="&#xE72E;" FontFamily="{StaticResource Font.Icons}" FontSize="11" Margin="6,0,0,0" VerticalAlignment="Center"
+                             Foreground="{DynamicResource Brush.Accent}" Visibility="{Binding Encrypted, Converter={StaticResource Vis}}"/>
+                </StackPanel>
+              </DataTemplate>
+            </GridViewColumn.CellTemplate>
+          </GridViewColumn>
+          <GridViewColumn Width="110">
+            <GridViewColumn.Header><TextBlock Text="{DynamicResource s.col.size}"/></GridViewColumn.Header>
+            <GridViewColumn.CellTemplate>
+              <DataTemplate><TextBlock Text="{Binding Size, Converter={StaticResource Bytes}}"/></DataTemplate>
+            </GridViewColumn.CellTemplate>
+          </GridViewColumn>
+          <GridViewColumn Width="110">
+            <GridViewColumn.Header><TextBlock Text="{DynamicResource s.col.packed}"/></GridViewColumn.Header>
+            <GridViewColumn.CellTemplate>
+              <DataTemplate><TextBlock Text="{Binding PackedSize, Converter={StaticResource Bytes}}" Foreground="{DynamicResource Brush.TextMuted}"/></DataTemplate>
+            </GridViewColumn.CellTemplate>
+          </GridViewColumn>
+          <GridViewColumn Width="150">
+            <GridViewColumn.Header><TextBlock Text="{DynamicResource s.col.modified}"/></GridViewColumn.Header>
+            <GridViewColumn.CellTemplate>
+              <DataTemplate><TextBlock Text="{Binding Modified, Converter={StaticResource Date}}" Foreground="{DynamicResource Brush.TextMuted}"/></DataTemplate>
+            </GridViewColumn.CellTemplate>
+          </GridViewColumn>
+          <GridViewColumn Width="110">
+            <GridViewColumn.Header><TextBlock Text="{DynamicResource s.col.method}"/></GridViewColumn.Header>
+            <GridViewColumn.CellTemplate>
+              <DataTemplate><TextBlock Text="{Binding Entry.Method}" Foreground="{DynamicResource Brush.TextMuted}" TextTrimming="CharacterEllipsis"/></DataTemplate>
+            </GridViewColumn.CellTemplate>
+          </GridViewColumn>
+        </GridView>
+      </ListView.View>
+    </ListView>
+
+    <DockPanel Grid.Row="2" Margin="0,8,0,0">
+      <TextBlock DockPanel.Dock="Right" Text="{Binding SelectionText}" Style="{StaticResource Text.Muted}"/>
+      <TextBlock Text="{Binding Summary}" Style="{StaticResource Text.Muted}" TextTrimming="CharacterEllipsis"/>
+    </DockPanel>
+  </Grid>
+</UserControl>

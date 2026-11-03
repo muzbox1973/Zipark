@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install 7-Zip (engine used by tests)
+        run: choco install 7zip -y --no-progress
+
+      - name: License allowlist check (blocks unreviewed dependencies)
+        shell: pwsh
+        run: ./tools/license-check.ps1
+
+      - name: UI strings are complete (ko/en)
+        run: python tools/i18n/strings.py
+
+      - name: Build
+        run: dotnet build Zipark.sln -c Release
+
+      - name: Test
+        run: dotnet test Zipark.sln -c Release --no-build --logger "trx;LogFileName=results.trx" --results-directory TestResults
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: TestResults
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build-test
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: choco install 7zip -y --no-progress
+      - name: Build MSI + portable zip + SBOM
+        shell: pwsh
+        run: ./build/build-release.ps1 -SevenZipDir "$env:ProgramFiles\7-Zip" -SkipTests
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Zipark-release
+          path: |
+            artifacts/*.msi
+            artifacts/*.zip
+            artifacts/sbom.json

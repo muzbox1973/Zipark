@@ -1,0 +1,24 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Zipark palette (light). Teal accent + amber highlight; colors are original to this project. -->
+  <Color x:Key="Color.Accent">#0E7C86</Color>
+  <SolidColorBrush x:Key="Brush.Window" Color="#F3F5F6"/>
+  <SolidColorBrush x:Key="Brush.Sidebar" Color="#EAEEF0"/>
+  <SolidColorBrush x:Key="Brush.Surface" Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="#F0F3F4"/>
+  <SolidColorBrush x:Key="Brush.Hover" Color="#E3E9EB"/>
+  <SolidColorBrush x:Key="Brush.Input" Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="Brush.Border" Color="#D5DCDF"/>
+  <SolidColorBrush x:Key="Brush.Text" Color="#1B2427"/>
+  <SolidColorBrush x:Key="Brush.TextMuted" Color="#5E6B70"/>
+  <SolidColorBrush x:Key="Brush.Accent" Color="#0E7C86"/>
+  <SolidColorBrush x:Key="Brush.AccentHover" Color="#0B6870"/>
+  <SolidColorBrush x:Key="Brush.AccentSoft" Color="#D7EEF0"/>
+  <SolidColorBrush x:Key="Brush.AccentText" Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="Brush.Highlight" Color="#F5A623"/>
+  <SolidColorBrush x:Key="Brush.Success" Color="#1F8A4C"/>
+  <SolidColorBrush x:Key="Brush.Warning" Color="#B7791F"/>
+  <SolidColorBrush x:Key="Brush.Danger" Color="#C23B3B"/>
+  <SolidColorBrush x:Key="Brush.Selection" Color="#CDE7EA"/>
+  <SolidColorBrush x:Key="Brush.DropZone" Color="#F7FBFB"/>
+</ResourceDictionary>

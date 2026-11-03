@@ -1,0 +1,55 @@
+<UserControl x:Class="Zipark.Desktop.Views.ExplorerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:v="clr-namespace:Zipark.Desktop.Views"
+             xmlns:infra="clr-namespace:Zipark.Desktop.Infrastructure">
+  <UserControl.Resources>
+    <infra:BoolToVisibilityConverter x:Key="Vis"/>
+    <infra:BoolToVisibilityConverter x:Key="NotVis" Invert="True"/>
+  </UserControl.Resources>
+  <Grid Margin="32,28,32,24">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition/>
+    </Grid.RowDefinitions>
+    <StackPanel>
+      <TextBlock Text="{DynamicResource s.explorer.title}" Style="{StaticResource Text.Title}"/>
+      <TextBlock Text="{DynamicResource s.explorer.subtitle}" Style="{StaticResource Text.Subtitle}" Margin="0,0,0,16"/>
+    </StackPanel>
+    <WrapPanel Grid.Row="1" Margin="0,0,0,12">
+      <Button Style="{StaticResource Button.Accent}" Command="{Binding OpenCommand}" Margin="0,0,8,0">
+        <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8E5;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="{DynamicResource s.explorer.open}" Margin="8,0,0,0"/></StackPanel>
+      </Button>
+      <Button Command="{Binding ExtractSelectedCommand}" Margin="0,0,8,0">
+        <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8DE;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="{DynamicResource s.explorer.extractSel}" Margin="8,0,0,0"/></StackPanel>
+      </Button>
+      <Button Command="{Binding ExtractAllCommand}" Margin="0,0,8,0">
+        <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE896;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="{DynamicResource s.explorer.extractAll}" Margin="8,0,0,0"/></StackPanel>
+      </Button>
+      <Button Command="{Binding TestCommand}" Margin="0,0,8,0">
+        <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9F5;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="{DynamicResource s.explorer.test}" Margin="8,0,0,0"/></StackPanel>
+      </Button>
+      <Button Command="{Binding MountCommand}" Margin="0,0,8,0">
+        <StackPanel Orientation="Horizontal"><TextBlock Text="&#xEDA2;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center"/><TextBlock Text="{DynamicResource s.explorer.mount}" Margin="8,0,0,0"/></StackPanel>
+      </Button>
+      <Button Command="{Binding CloseCommand}" Style="{StaticResource Button.Subtle}">
+        <TextBlock Text="{DynamicResource s.common.close}"/>
+      </Button>
+    </WrapPanel>
+
+    <v:ArchiveListView Grid.Row="2" Visibility="{Binding HasArchive, Converter={StaticResource Vis}}"/>
+
+    <Border Grid.Row="2" Style="{StaticResource Card}" VerticalAlignment="Top" Visibility="{Binding HasArchive, Converter={StaticResource NotVis}}">
+      <StackPanel HorizontalAlignment="Center" Margin="0,30">
+        <TextBlock Text="&#xE8B7;" FontFamily="{StaticResource Font.Icons}" FontSize="36" HorizontalAlignment="Center" Foreground="{DynamicResource Brush.Accent}"/>
+        <TextBlock Text="{DynamicResource s.explorer.empty}" Margin="0,12,0,4" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+        <TextBlock Text="{DynamicResource s.explorer.emptyHint}" Style="{StaticResource Text.Muted}" HorizontalAlignment="Center"/>
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="2" Background="#33000000" CornerRadius="10" Visibility="{Binding Busy, Converter={StaticResource Vis}}">
+      <TextBlock Text="{DynamicResource s.common.loading}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="16"/>
+    </Border>
+  </Grid>
+</UserControl>
